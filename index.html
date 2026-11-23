@@ -1,308 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
+<!-- ... existing code ... -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ambisonics Speaker Diagrams</title>
+  <title>Loudspeaker Array Designer</title>
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    /* Custom subtle scrollbars for dark studio UI */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-    /* Prevent text selection while dragging speakers on SVG */
-    .no-select {
-      user-select: none;
-      -webkit-user-select: none;
-    }
-  </style>
-</head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200">
-
-  <!-- Top Navigation / Header -->
-  <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <!-- App Logo SVG -->
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
-          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9" stroke-opacity="0.45"></circle>
-            <circle cx="12" cy="12" r="4"></circle>
-            <circle cx="12" cy="3" r="1.5" fill="currentColor"></circle>
-            <circle cx="12" cy="21" r="1.5" fill="currentColor"></circle>
-            <circle cx="3" cy="12" r="1.5" fill="currentColor"></circle>
-            <circle cx="21" cy="12" r="1.5" fill="currentColor"></circle>
-          </svg>
-        </div>
+<!-- ... existing code ... -->
         <div>
-          <h1 class="text-base sm:text-lg font-semibold tracking-tight text-white leading-tight">Ambisonics Speaker Diagrams</h1>
-          <p class="text-xs text-slate-400">2D &amp; 3D Spatial Audio Loudspeaker Array Designer</p>
+          <h1 class="text-base sm:text-lg font-semibold tracking-tight text-white leading-tight">Loudspeaker Array Designer</h1>
         </div>
       </div>
-
-      <!-- Export Actions -->
-      <div class="flex flex-wrap items-center gap-2">
-        <button id="btnCopyCoords" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium transition flex items-center gap-1.5 border border-slate-700/80">
-          <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-          <span>Copy JSON</span>
-        </button>
-        <button id="btnExportSVG" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium transition flex items-center gap-1.5 border border-slate-700/80">
-          <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          <span>SVG</span>
-        </button>
-        <button id="btnExportPNG" class="px-3.5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow-md shadow-cyan-900/30">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-            <polyline points="21 15 16 10 5 21"></polyline>
-          </svg>
-          <span>Export PNG</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Workspace -->
-  <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-
-    <!-- LEFT SIDEBAR: Controls & Array Builder -->
-    <aside class="lg:col-span-4 xl:col-span-3 space-y-4">
-
+<!-- ... existing code ... -->
       <!-- Presets Card -->
-      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
+      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
           <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Standard Presets</h2>
           <span id="dirBadge" class="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-800/50">ACN / CCW ↺</span>
         </div>
         <div class="grid grid-cols-2 gap-2" id="presetGrid">
           <!-- Preset buttons populated by JS -->
         </div>
-      </section>
 
-      <!-- Speaker Sequence & Direction Card -->
-      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Sequence &amp; Direction</h2>
-          <span class="text-[11px] text-slate-500">Numbering</span>
-        </div>
-
-        <!-- Direction Toggle (CCW vs CW) -->
-        <div>
-          <label class="block text-xs text-slate-400 mb-1.5">Speaker Direction</label>
-          <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
-            <button id="btnDirCCW" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition bg-cyan-600 text-white shadow-sm">
-              ↺ CCW (Std)
-            </button>
-            <button id="btnDirCW" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-slate-200">
-              ↻ Clockwise
-            </button>
-          </div>
-        </div>
-
-        <!-- Numbering Pattern -->
-        <div>
-          <label for="seqMode" class="block text-xs text-slate-400 mb-1">Numbering Sequence</label>
-          <select id="seqMode" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
-            <option value="sequential">Sequential (1, 2, 3, 4...)</option>
-            <option value="custom">Custom Sequence (e.g. 1, 3, 4, 5)</option>
-            <option value="skip">Skip Channel(s) (e.g. skip 2)</option>
-            <option value="interleaved">Alternating L/R (1, 3... / 2, 4...)</option>
+        <!-- SPAT5 Famous Studio Layouts Dropdown -->
+        <div class="pt-2.5 border-t border-slate-800">
+          <label for="spatLayoutSelect" class="block text-xs font-medium text-slate-300 mb-1.5">SPAT5 Studio Layouts</label>
+          <select id="spatLayoutSelect" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+            <option value="">— Load a SPAT5 studio layout —</option>
           </select>
         </div>
-
-        <!-- Custom Sequence Input -->
-        <div id="customSeqPanel" class="hidden">
-          <label for="customSeqInput" class="block text-xs text-slate-400 mb-1">Custom Order (comma-separated)</label>
-          <input id="customSeqInput" type="text" value="1, 3, 4, 5" placeholder="e.g. 1, 3, 4, 5, 6, 7, 8, 9" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-          <p class="text-[10px] text-slate-500 mt-1">Auto-continues (+1) if more speakers exist than entries.</p>
-        </div>
-
-        <!-- Skip Channels Input -->
-        <div id="skipSeqPanel" class="hidden">
-          <label for="skipSeqInput" class="block text-xs text-slate-400 mb-1">Skip Channel Numbers</label>
-          <input id="skipSeqInput" type="text" value="2" placeholder="e.g. 2 or 2, 6" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-          <p class="text-[10px] text-slate-500 mt-1">Useful when reserving a channel for LFE/Sub or talkback.</p>
-        </div>
-
-        <button id="btnApplySequence" type="button" class="w-full px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-medium transition border border-slate-700">
-          Apply Sequence to Array
-        </button>
       </section>
-
-      <!-- Ring Generator Card -->
-      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Quick Ring Generator</h2>
-        <div class="grid grid-cols-2 gap-2.5 text-xs">
-          <div>
-            <label for="ringCount" class="block text-slate-400 mb-1">Speakers</label>
-            <input id="ringCount" type="number" min="1" max="32" value="8" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-2 text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-          </div>
-          <div>
-            <label for="ringElevation" class="block text-slate-400 mb-1">Elevation (°)</label>
-            <input id="ringElevation" type="number" min="-90" max="90" step="5" value="0" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-2 text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-          </div>
-          <div>
-            <label for="ringOffset" class="block text-slate-400 mb-1">Start Azimuth (°)</label>
-            <input id="ringOffset" type="number" min="-180" max="180" step="5" value="22.5" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-2 text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-          </div>
-          <div>
-            <label for="ringRadius" class="block text-slate-400 mb-1">Radius (m)</label>
-            <input id="ringRadius" type="number" min="0.5" max="10" step="0.1" value="2.5" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-2 text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2 mt-3">
-          <button id="btnReplaceRing" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition border border-slate-700">Replace All</button>
-          <button id="btnAppendRing" class="px-3 py-2 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-medium transition">Add Ring</button>
-        </div>
-      </section>
-
-      <!-- Display & Diagram Settings -->
-      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
-        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Diagram Settings</h2>
-
-        <!-- Diagram Title Input -->
-        <div>
-          <label for="diagramTitle" class="block text-xs text-slate-400 mb-1">Diagram Title</label>
-          <input id="diagramTitle" type="text" value="8.0 Octagon Horizontal Array" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
-        </div>
-
-        <!-- Manual Distance from Center (Locked During Drag) -->
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label for="arrayRadiusInput" class="text-xs text-slate-400">Speaker Distance (m)</label>
-            <span class="text-[10px] font-mono text-cyan-400">Locked on drag</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <input id="arrayRadiusRange" type="range" min="0.5" max="15" step="0.1" value="2.5" class="flex-1 accent-cyan-500 cursor-pointer">
-            <input id="arrayRadiusInput" type="number" min="0.5" max="15" step="0.1" value="2.5" class="w-16 rounded-lg bg-slate-950 border border-slate-700 px-2 py-1.5 text-xs text-slate-100 font-mono text-right focus:outline-none focus:border-cyan-500">
-          </div>
-        </div>
-
-        <!-- View Mode & Theme -->
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">View Mode</label>
-            <select id="viewMode" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
-              <option value="dual">Dual (Top + Side)</option>
-              <option value="top">Top-Down Plan</option>
-              <option value="side">Side Elevation</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Diagram Theme</label>
-            <select id="diagramTheme" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
-              <option value="dark">Studio Dark</option>
-              <option value="light">Print Light</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Toggles -->
-        <div class="grid grid-cols-2 gap-y-2 gap-x-3 pt-1 text-xs text-slate-300">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input id="optShowGrid" type="checkbox" checked class="rounded border-slate-600 bg-slate-950 text-cyan-500 focus:ring-cyan-500">
-            <span>Polar Grid</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input id="optShowBeams" type="checkbox" checked class="rounded border-slate-600 bg-slate-950 text-cyan-500 focus:ring-cyan-500">
-            <span>Acoustic Axes</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input id="optShowAngles" type="checkbox" checked class="rounded border-slate-600 bg-slate-950 text-cyan-500 focus:ring-cyan-500">
-            <span>Angle Labels</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input id="optShowSweetSpot" type="checkbox" checked class="rounded border-slate-600 bg-slate-950 text-cyan-500 focus:ring-cyan-500">
-            <span>Sweet Spot</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input id="optShowRoom" type="checkbox" class="rounded border-slate-600 bg-slate-950 text-cyan-500 focus:ring-cyan-500">
-            <span>Room Outline</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input id="optShowSub" type="checkbox" class="rounded border-slate-600 bg-slate-950 text-emerald-500 focus:ring-emerald-500">
-            <span>Include Sub</span>
-          </label>
-        </div>
-
-        <!-- Quick Subwoofer Controls -->
-        <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
-          <span class="text-xs text-slate-400">Subwoofers: <strong id="subCountLabel" class="text-emerald-400 font-mono">0</strong></span>
-          <div class="flex items-center gap-1.5">
-            <button id="btnAddSubSidebar" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-[11px] font-medium transition">
-              + Add Sub
-            </button>
-          </div>
-        </div>
-
-        <!-- Room Dimensions (visible when Room Outline checked) -->
-        <div id="roomDimensionsPanel" class="hidden grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs">
-          <div>
-            <label for="roomWidth" class="block text-slate-400 mb-1">Room Width (m)</label>
-            <input id="roomWidth" type="number" min="2" max="30" step="0.5" value="6.5" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-1.5 text-slate-100 font-mono">
-          </div>
+<!-- ... existing code ... -->
           <div>
             <label for="roomDepth" class="block text-slate-400 mb-1">Room Depth (m)</label>
             <input id="roomDepth" type="number" min="2" max="30" step="0.5" value="7.5" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-1.5 text-slate-100 font-mono">
           </div>
         </div>
-      </section>
-
-      <!-- Ambisonics Metrics Card -->
-      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Array Analysis</h2>
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5">
-            <div id="statCount" class="text-lg font-bold font-mono text-white">8</div>
-            <div class="text-[11px] text-slate-400">Speakers</div>
-          </div>
-          <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5">
-            <div id="statOrder2D" class="text-lg font-bold font-mono text-cyan-400">3rd</div>
-            <div class="text-[11px] text-slate-400">Max 2D Ord</div>
-          </div>
-          <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5">
-            <div id="statOrder3D" class="text-lg font-bold font-mono text-indigo-400">1st</div>
-            <div class="text-[11px] text-slate-400">Max 3D Ord</div>
-          </div>
-        </div>
-        <p id="statNote" class="text-[11px] text-slate-400 mt-2.5 leading-relaxed">
-          Horizontal 2D array detected. Supports up to 3rd-order 2D Ambisonics (7 channels).
-        </p>
       </section>
     </aside>
 
@@ -314,209 +43,9 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
           <div class="flex items-center gap-2 text-xs text-slate-400">
             <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-            <span>Tip: Click a speaker to edit, or <strong class="text-slate-200 font-medium">drag</strong> speakers in the Top-Down view to adjust angle (distance stays locked).</span>
+            <span>Click a speaker to set a concrete angle, or <strong class="text-slate-200 font-medium">drag</strong> speakers around the edge (subwoofers move freely in angle &amp; distance).</span>
           </div>
-          <!-- Elevation Color Legend -->
-          <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-300">
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>Lower (&lt;0°)</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>Ear (0°)</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-violet-400"></span>Upper (&gt;0°)</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>Zenith (≥75°)</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-400"></span>Sub / LFE</span>
-          </div>
-        </div>
-
-        <!-- SVG Container -->
-        <div id="svgContainer" class="w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center no-select">
-          <!-- Responsive SVG rendered dynamically by JS -->
-        </div>
-      </section>
-
-      <!-- Selected Speaker Editor + Speaker List -->
-      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div>
-            <h2 class="text-sm font-semibold text-white">Loudspeaker Coordinates</h2>
-            <p class="text-xs text-slate-400">Standard Ambisonics convention: 0° Front, +90° Left, -90° Right, ±180° Rear</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="btnAddSub" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-medium transition flex items-center gap-1">
-              <span>+ Add Subwoofer</span>
-            </button>
-            <button id="btnAddSpeaker" class="px-3 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 text-xs font-medium transition flex items-center gap-1">
-              <span>+ Add Speaker</span>
-            </button>
-            <button id="btnClearAll" class="px-3 py-1.5 rounded-lg bg-rose-600/15 hover:bg-rose-600/25 text-rose-300 border border-rose-500/30 text-xs font-medium transition">
-              Clear All
-            </button>
-          </div>
-        </div>
-
-        <!-- Selected Speaker Quick Inspector -->
-        <div id="selectedInspector" class="mb-4 p-3 rounded-xl bg-slate-950/90 border border-cyan-500/40 hidden">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-cyan-400 uppercase tracking-wider">Editing <span id="editTypeHeading">Speaker</span> #<span id="editIndex">1</span></span>
-            <button id="btnDeleteSelected" class="text-xs text-rose-400 hover:text-rose-300 font-medium">Remove</button>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-            <div>
-              <label for="editType" class="block text-slate-400 mb-1">Type</label>
-              <select id="editType" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-2 py-1.5 text-slate-100 focus:outline-none focus:border-cyan-500">
-                <option value="speaker">Speaker</option>
-                <option value="sub">Subwoofer</option>
-              </select>
-            </div>
-            <div>
-              <label for="editLabel" class="block text-slate-400 mb-1">Label / Ch</label>
-              <input id="editLabel" type="text" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-            </div>
-            <div>
-              <label for="editAz" class="block text-slate-400 mb-1">Azimuth (°)</label>
-              <input id="editAz" type="number" min="-180" max="180" step="0.5" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-            </div>
-            <div>
-              <label for="editEl" class="block text-slate-400 mb-1">Elevation (°)</label>
-              <input id="editEl" type="number" min="-90" max="90" step="0.5" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-            </div>
-            <div>
-              <label for="editDist" class="block text-slate-400 mb-1">Radius (m)</label>
-              <input id="editDist" type="number" min="0.5" max="15" step="0.1" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
-            </div>
-          </div>
-        </div>
-
-        <!-- Speaker Table -->
-        <div class="overflow-x-auto max-h-64 overflow-y-auto rounded-xl border border-slate-800">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead class="bg-slate-950 text-slate-400 sticky top-0 z-10">
-              <tr>
-                <th class="py-2.5 px-3 font-medium">Ch</th>
-                <th class="py-2.5 px-3 font-medium">Label</th>
-                <th class="py-2.5 px-3 font-medium">Azimuth (°)</th>
-                <th class="py-2.5 px-3 font-medium">Elevation (°)</th>
-                <th class="py-2.5 px-3 font-medium">Radius (m)</th>
-                <th class="py-2.5 px-3 font-medium text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="speakerTableBody" class="divide-y divide-slate-800/80 font-mono">
-              <!-- Rows populated by JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <!-- Toast Notification (replaces alert()) -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-    <div class="bg-slate-800 border border-slate-700 text-slate-100 px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2.5 text-sm font-medium">
-      <span id="toastDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-      <span id="toastMsg">Exported successfully</span>
-    </div>
-  </div>
-
-  <!-- Hidden textarea for safe clipboard copying inside iframes -->
-  <textarea id="clipboardHelper" class="sr-only" aria-hidden="true"></textarea>
-
-  <script>
-    /**
-     * =========================================================================
-     * Ambisonics Speaker Setup Diagram Generator
-     * =========================================================================
-     * Coordinate System (Standard Ambisonics / ACN / IEM / SPARTA):
-     * - Azimuth (az): 0° = Front, +90° = Left (CCW), -90° = Right (CW), ±180° = Rear
-     * - Elevation (el): 0° = Horizontal ear level, +90° = Zenith, -90° = Nadir
-     * - Radius (r): Distance from sweet spot in meters
-     */
-
-    // --- Application State ---
-    const state = {
-      title: '8.0 Octagon Horizontal Array',
-      arrayRadius: 2.5,
-      viewMode: 'dual', // 'dual' | 'top' | 'side'
-      theme: 'dark',    // 'dark' | 'light'
-      direction: 'ccw', // 'ccw' | 'cw'
-      seqMode: 'sequential', // 'sequential' | 'custom' | 'skip' | 'interleaved'
-      customSequence: '1, 3, 4, 5',
-      skipChannels: '2',
-      showGrid: true,
-      showBeams: true,
-      showAngles: true,
-      showSweetSpot: true,
-      showRoom: false,
-      roomWidth: 6.5,
-      roomDepth: 7.5,
-      selectedIndex: null,
-      speakers: [],
-      draggingIndex: null
-    };
-
-    // --- Preset Configurations ---
-    const PRESETS = [
-      {
-        id: 'quad',
-        name: 'Quad 4.0',
-        badge: '1st 2D',
-        title: '4.0 Quadraphonic Array (1st-Order 2D)',
-        build: () => makeRing(4, 0, 45, 2.2)
-      },
-      {
-        id: 'hex',
-        name: 'Hexagon 6.0',
-        badge: '2nd 2D',
-        title: '6.0 Hexagonal Array (2nd-Order 2D)',
-        build: () => makeRing(6, 0, 30, 2.4)
-      },
-      {
-        id: 'oct',
-        name: 'Octagon 8.0',
-        badge: '3rd 2D',
-        title: '8.0 Octagon Horizontal Array (3rd-Order 2D)',
-        build: () => makeRing(8, 0, 22.5, 2.5)
-      },
-      {
-        id: 'cube',
-        name: 'Cube 8.0',
-        badge: '1st 3D',
-        title: '8.0 Cube Periphonic Array (1st-Order 3D)',
-        build: () => [
-          ...makeRing(4, -35.3, 45, 2.4, 1),
-          ...makeRing(4, 35.3, 45, 2.4, 5)
-        ]
-      },
-      {
-        id: 'dome12',
-        name: 'Dome 12.0',
-        badge: '2nd 3D',
-        title: '12.0 Hemisphere Dome (8 + 4)',
-        build: () => [
-          ...makeRing(8, 0, 22.5, 2.6, 1),
-          ...makeRing(4, 45, 45, 2.6, 9)
-        ]
-      },
-      {
-        id: 'dome16',
-        name: 'Dome 16.0',
-        badge: '3rd 3D',
-        title: '16.0 Hemisphere Dome (8 + 6 + 2)',
-        build: () => [
-          ...makeRing(8, 0, 22.5, 2.8, 1),
-          ...makeRing(6, 40, 30, 2.8, 9),
-          { id: uid(), label: '15', az: 90, el: 75, dist: 2.8 },
-          { id: uid(), label: '16', az: -90, el: 75, dist: 2.8 }
-        ]
-      },
-      {
-        id: 'dome13',
-        name: 'Dome 13.0 (VoG)',
-        badge: '2nd 3D',
-        title: '13.0 Dome with Voice of God (8 + 4 + 1)',
-        build: () => [
-          ...makeRing(8, 0, 22.5, 2.6, 1),
-          ...makeRing(4, 45, 45, 2.6, 9),
-          { id: uid(), label: 'VoG', az: 0, el: 90, dist: 2.6 }
-        ]
-      },
+<!-- ... existing code ... -->
       {
         id: 'sphere14',
         name: 'Sphere 14.0',
@@ -530,409 +59,262 @@
       }
     ];
 
-    // --- Utility Functions ---
-    function uid() {
-      return 'spk_' + Math.random().toString(36).slice(2, 9);
-    }
-
-    function normalizeAzimuth(deg) {
-      let a = ((deg + 180) % 360 + 360) % 360 - 180;
-      // Prefer +180 over -180 for neatness
-      if (Math.abs(a + 180) < 0.01) a = 180;
-      return Math.round(a * 10) / 10;
-    }
-
-    function clamp(val, min, max) {
-      return Math.max(min, Math.min(max, val));
-    }
-
-    function degToRad(deg) {
-      return (deg * Math.PI) / 180;
-    }
-
-    function radToDeg(rad) {
-      return (rad * 180) / Math.PI;
-    }
-
-    /**
-     * Generates a horizontal ring of N speakers evenly spaced in the chosen direction (CCW or CW).
-     */
-    function makeRing(count, elevation, startOffset, radius, startLabelNum = 1) {
-      const list = [];
-      const step = 360 / count;
-      const dirSign = state.direction === 'cw' ? -1 : 1;
-      for (let i = 0; i < count; i++) {
-        const az = normalizeAzimuth(startOffset + dirSign * i * step);
-        list.push({
-          id: uid(),
-          label: String(startLabelNum + i),
-          az,
-          el: Math.round(elevation * 10) / 10,
-          dist: Math.round(radius * 100) / 100,
-          isSub: false
-        });
+    // --- Famous IRCAM SPAT5 Studio & Reference Speaker Layouts ---
+    const SPAT_LAYOUTS = [
+      {
+        id: 'ircam-studio4',
+        name: 'IRCAM Studio 4 (24.0 Dome)',
+        radius: 2.8,
+        build: () => [
+          ...makeRing(12, 0, 15, 2.8, 1),
+          ...makeRing(8, 35, 22.5, 2.8, 13),
+          ...makeRing(4, 65, 45, 2.8, 21)
+        ]
+      },
+      {
+        id: 'ircam-studio5',
+        name: 'IRCAM Studio 5 (16.0 Dome)',
+        radius: 2.6,
+        build: () => [
+          ...makeRing(8, 0, 22.5, 2.6, 1),
+          ...makeRing(6, 35, 30, 2.6, 9),
+          { id: uid(), label: '15', az: 90, el: 70, dist: 2.6, isSub: false },
+          { id: uid(), label: '16', az: -90, el: 70, dist: 2.6, isSub: false }
+        ]
+      },
+      {
+        id: 'ircam-espro24',
+        name: 'IRCAM Espro 24 (24.0 Dome)',
+        radius: 5.0,
+        build: () => [
+          ...makeRing(12, 0, 15, 5.0, 1),
+          ...makeRing(8, 30, 22.5, 5.0, 13),
+          ...makeRing(4, 60, 45, 5.0, 21)
+        ]
+      },
+      {
+        id: 'iem-cube',
+        name: 'IEM CUBE (24.0, Graz)',
+        radius: 4.5,
+        build: () => [
+          ...makeRing(12, 0, 15, 4.5, 1),
+          ...makeRing(8, 28, 22.5, 4.5, 13),
+          ...makeRing(4, 58, 45, 4.5, 21)
+        ]
+      },
+      {
+        id: 'zkm-kubus',
+        name: 'ZKM Kubus (24.0, Karlsruhe)',
+        radius: 4.8,
+        build: () => [
+          ...makeRing(8, -15, 22.5, 4.8, 1),
+          ...makeRing(8, 15, 22.5, 4.8, 9),
+          ...makeRing(8, 45, 22.5, 4.8, 17)
+        ]
+      },
+      {
+        id: 'sarc-soniclab',
+        name: 'SARC Sonic Lab (16.0, Belfast)',
+        radius: 4.0,
+        build: () => [
+          ...makeRing(4, -35, 45, 4.0, 1),
+          ...makeRing(8, 0, 22.5, 4.0, 5),
+          ...makeRing(4, 35, 45, 4.0, 13)
+        ]
+      },
+      {
+        id: 'itu-51',
+        name: 'ITU-R BS.775 (5.1 Surround)',
+        radius: 2.5,
+        build: () => [
+          { id: uid(), label: '1', az: 30, el: 0, dist: 2.5, isSub: false },
+          { id: uid(), label: '2', az: -30, el: 0, dist: 2.5, isSub: false },
+          { id: uid(), label: '3', az: 0, el: 0, dist: 2.5, isSub: false },
+          { id: uid(), label: '4', az: 110, el: 0, dist: 2.5, isSub: false },
+          { id: uid(), label: '5', az: -110, el: 0, dist: 2.5, isSub: false },
+          { id: uid(), label: 'SUB', az: -15, el: -15, dist: 2.1, isSub: true }
+        ]
+      },
+      {
+        id: 'atmos-714',
+        name: 'Dolby Atmos / ITU (7.1.4)',
+        radius: 2.8,
+        build: () => [
+          { id: uid(), label: '1', az: 30, el: 0, dist: 2.8, isSub: false },
+          { id: uid(), label: '2', az: -30, el: 0, dist: 2.8, isSub: false },
+          { id: uid(), label: '3', az: 0, el: 0, dist: 2.8, isSub: false },
+          { id: uid(), label: '4', az: 90, el: 0, dist: 2.8, isSub: false },
+          { id: uid(), label: '5', az: -90, el: 0, dist: 2.8, isSub: false },
+          { id: uid(), label: '6', az: 135, el: 0, dist: 2.8, isSub: false },
+          { id: uid(), label: '7', az: -135, el: 0, dist: 2.8, isSub: false },
+          { id: uid(), label: '8', az: 45, el: 45, dist: 2.8, isSub: false },
+          { id: uid(), label: '9', az: -45, el: 45, dist: 2.8, isSub: false },
+          { id: uid(), label: '10', az: 135, el: 45, dist: 2.8, isSub: false },
+          { id: uid(), label: '11', az: -135, el: 45, dist: 2.8, isSub: false },
+          { id: uid(), label: 'SUB', az: 0, el: -15, dist: 2.2, isSub: true }
+        ]
+      },
+      {
+        id: 'auro-111',
+        name: 'Auro-3D (11.1)',
+        radius: 2.6,
+        build: () => [
+          { id: uid(), label: '1', az: 30, el: 0, dist: 2.6, isSub: false },
+          { id: uid(), label: '2', az: -30, el: 0, dist: 2.6, isSub: false },
+          { id: uid(), label: '3', az: 0, el: 0, dist: 2.6, isSub: false },
+          { id: uid(), label: '4', az: 110, el: 0, dist: 2.6, isSub: false },
+          { id: uid(), label: '5', az: -110, el: 0, dist: 2.6, isSub: false },
+          { id: uid(), label: '6', az: 30, el: 30, dist: 2.6, isSub: false },
+          { id: uid(), label: '7', az: -30, el: 30, dist: 2.6, isSub: false },
+          { id: uid(), label: '8', az: 0, el: 30, dist: 2.6, isSub: false },
+          { id: uid(), label: '9', az: 110, el: 30, dist: 2.6, isSub: false },
+          { id: uid(), label: '10', az: -110, el: 30, dist: 2.6, isSub: false },
+          { id: uid(), label: 'VoG', az: 0, el: 90, dist: 2.6, isSub: false },
+          { id: uid(), label: 'SUB', az: -15, el: -15, dist: 2.1, isSub: true }
+        ]
+      },
+      {
+        id: 'nhk-222',
+        name: 'NHK 22.2 (BS.2051-3)',
+        radius: 3.5,
+        build: () => [
+          // Bottom layer (3)
+          { id: uid(), label: '1', az: 45, el: -15, dist: 3.5, isSub: false },
+          { id: uid(), label: '2', az: 0, el: -15, dist: 3.5, isSub: false },
+          { id: uid(), label: '3', az: -45, el: -15, dist: 3.5, isSub: false },
+          // Middle layer (10)
+          { id: uid(), label: '4', az: 0, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '5', az: 30, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '6', az: -30, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '7', az: 60, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '8', az: -60, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '9', az: 90, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '10', az: -90, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '11', az: 135, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '12', az: -135, el: 0, dist: 3.5, isSub: false },
+          { id: uid(), label: '13', az: 180, el: 0, dist: 3.5, isSub: false },
+          // Top layer (9)
+          { id: uid(), label: '14', az: 0, el: 35, dist: 3.5, isSub: false },
+          { id: uid(), label: '15', az: 45, el: 35, dist: 3.5, isSub: false },
+          { id: uid(), label: '16', az: -45, el: 35, dist: 3.5, isSub: false },
+          { id: uid(), label: '17', az: 90, el: 35, dist: 3.5, isSub: false },
+          { id: uid(), label: '18', az: -90, el: 35, dist: 3.5, isSub: false },
+          { id: uid(), label: '19', az: 135, el: 35, dist: 3.5, isSub: false },
+          { id: uid(), label: '20', az: -135, el: 35, dist: 3.5, isSub: false },
+          { id: uid(), label: '21', az: 180, el: 35, dist: 3.5, isSub: false },
+          { id: uid(), label: 'VoG', az: 0, el: 90, dist: 3.5, isSub: false },
+          // 2 LFE Subwoofers
+          { id: uid(), label: 'SUB 1', az: 45, el: -15, dist: 2.6, isSub: true },
+          { id: uid(), label: 'SUB 2', az: -45, el: -15, dist: 2.6, isSub: true }
+        ]
       }
-      return list;
-    }
-
-    /**
-     * Generates channel labels for N main speakers based on the active numbering sequence mode.
-     */
-    function buildSequenceLabels(mainSpeakers) {
-      const count = mainSpeakers.length;
-      if (count === 0) return [];
-
-      if (state.seqMode === 'custom') {
-        const tokens = state.customSequence
-          .split(/[\s,;]+/)
-          .map(t => t.trim())
-          .filter(Boolean);
-        const labels = [];
-        let lastNum = 0;
-        for (let i = 0; i < count; i++) {
-          if (i < tokens.length) {
-            labels.push(tokens[i]);
-            const parsed = parseInt(tokens[i], 10);
-            if (!isNaN(parsed)) lastNum = parsed;
-          } else {
-            lastNum += 1;
-            labels.push(String(lastNum));
-          }
-        }
-        return labels;
-      }
-
-      if (state.seqMode === 'skip') {
-        const skipSet = new Set(
-          state.skipChannels
-            .split(/[\s,;]+/)
-            .map(t => parseInt(t.trim(), 10))
-            .filter(n => !isNaN(n))
-        );
-        const labels = [];
-        let ch = 1;
-        while (labels.length < count) {
-          if (!skipSet.has(ch)) labels.push(String(ch));
-          ch++;
-        }
-        return labels;
-      }
-
-      if (state.seqMode === 'interleaved') {
-        // Assign odd channels (1, 3, 5...) to Left/Front (az >= 0) and even (2, 4, 6...) to Right (az < 0)
-        const leftIndices = [];
-        const rightIndices = [];
-        mainSpeakers.forEach((s, idx) => {
-          if (s.az >= 0) leftIndices.push({ idx, az: s.az, el: s.el });
-          else rightIndices.push({ idx, az: Math.abs(s.az), el: s.el });
-        });
-        leftIndices.sort((a, b) => a.el - b.el || a.az - b.az);
-        rightIndices.sort((a, b) => a.el - b.el || a.az - b.az);
-
-        const labels = new Array(count);
-        leftIndices.forEach((item, i) => { labels[item.idx] = String(1 + i * 2); });
-        rightIndices.forEach((item, i) => { labels[item.idx] = String(2 + i * 2); });
-        return labels;
-      }
-
-      // Default: sequential (1, 2, 3, 4...)
-      return mainSpeakers.map((_, i) => String(i + 1));
-    }
-
-    /**
-     * Sorts main speakers by elevation layer and current direction (CCW/CW), then applies labels.
-     */
-    function reorderAndApplySequence(reorderDirection = true) {
-      const mainSpeakers = state.speakers.filter(s => !s.isSub);
-      const subs = state.speakers.filter(s => s.isSub);
-
-      if (reorderDirection && mainSpeakers.length > 1) {
-        mainSpeakers.sort((a, b) => {
-          // Group speakers within 8° of elevation into the same layer
-          const layerA = Math.round(a.el / 8);
-          const layerB = Math.round(b.el / 8);
-          if (layerA !== layerB) return layerA - layerB;
-
-          if (state.direction === 'cw') {
-            // Clockwise starting from Front-Left (+45° / +22.5° / 0° -> Right -> Rear -> Left)
-            const keyA = ((46 - a.az) % 360 + 360) % 360;
-            const keyB = ((46 - b.az) % 360 + 360) % 360;
-            return keyA - keyB;
-          } else {
-            // Counter-clockwise starting from Front (0° -> Left -> Rear -> Right)
-            const keyA = ((a.az % 360) + 360) % 360;
-            const keyB = ((b.az % 360) + 360) % 360;
-            return keyA - keyB;
-          }
-        });
-      }
-
-      const labels = buildSequenceLabels(mainSpeakers);
-      mainSpeakers.forEach((s, i) => {
-        // Preserve special VoG label if zenith and sequential
-        if (s.el >= 89 && s.label === 'VoG' && state.seqMode === 'sequential') return;
-        s.label = labels[i];
-      });
-
-      state.speakers = [...mainSpeakers, ...subs];
-      state.selectedIndex = null;
-    }
-
-    /**
-     * Adds a draggable Subwoofer (LFE) to the diagram.
-     */
-    function addSubwoofer() {
-      const existingSubs = state.speakers.filter(s => s.isSub);
-      const count = existingSubs.length;
-      // Place first sub front-center, second front-right/left, etc.
-      const defaultAz = count === 0 ? 0 : (count % 2 === 1 ? -35 : 35);
-      const label = count === 0 ? 'SUB' : `SUB ${count + 1}`;
-      state.speakers.push({
-        id: uid(),
-        label,
-        az: defaultAz,
-        el: -15,
-        dist: 2.2,
-        isSub: true
-      });
-      state.selectedIndex = state.speakers.length - 1;
-      renderAll();
-      showToast(`Added ${label} to diagram`);
-    }
-
-    /**
-     * Returns semantic color for a speaker based on its elevation angle (or emerald for Subwoofer).
-     */
-    function getElevationColor(el, theme, isSub = false) {
-      if (isSub) return theme === 'dark' ? '#34d399' : '#059669';    // Emerald (Subwoofer)
-      if (el >= 75) return theme === 'dark' ? '#fb7185' : '#e11d48'; // Rose (Zenith)
-      if (el > 5)   return theme === 'dark' ? '#a78bfa' : '#7c3aed'; // Violet (Upper)
-      if (el < -5)  return theme === 'dark' ? '#fbbf24' : '#d97706'; // Amber (Lower)
-      return theme === 'dark' ? '#22d3ee' : '#0284c7';               // Cyan/Sky (Ear Level)
-    }
-
-    /**
-     * Formats ordinal numbers (1st, 2nd, 3rd, etc.)
-     */
-    function ordinal(n) {
-      if (n <= 0) return '—';
-      const s = ['th', 'st', 'nd', 'rd'];
-      const v = n % 100;
-      return n + (s[(v - 20) % 10] || s[v] || s[0]);
-    }
-
-    /**
-     * Show non-blocking toast notification
-     */
-    let toastTimer = null;
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      const toastDot = document.getElementById('toastDot');
-      toastMsg.textContent = message;
-      toastDot.className = 'w-2.5 h-2.5 rounded-full ' + (type === 'error' ? 'bg-rose-400' : 'bg-emerald-400');
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-20', 'opacity-0');
-      }, 2600);
-    }
-
+    ];
+// ... existing code ...
     // --- DOM References ---
     const els = {
       presetGrid: document.getElementById('presetGrid'),
+      spatLayoutSelect: document.getElementById('spatLayoutSelect'),
       dirBadge: document.getElementById('dirBadge'),
-      btnDirCCW: document.getElementById('btnDirCCW'),
-      btnDirCW: document.getElementById('btnDirCW'),
-      seqMode: document.getElementById('seqMode'),
-      customSeqPanel: document.getElementById('customSeqPanel'),
-      customSeqInput: document.getElementById('customSeqInput'),
-      skipSeqPanel: document.getElementById('skipSeqPanel'),
-      skipSeqInput: document.getElementById('skipSeqInput'),
-      subCountLabel: document.getElementById('subCountLabel'),
-      svgContainer: document.getElementById('svgContainer'),
-      speakerTableBody: document.getElementById('speakerTableBody'),
-      selectedInspector: document.getElementById('selectedInspector'),
-      editTypeHeading: document.getElementById('editTypeHeading'),
-      editType: document.getElementById('editType'),
-      editIndex: document.getElementById('editIndex'),
-      editLabel: document.getElementById('editLabel'),
-      editAz: document.getElementById('editAz'),
-      editEl: document.getElementById('editEl'),
-      editDist: document.getElementById('editDist'),
-      diagramTitle: document.getElementById('diagramTitle'),
-      arrayRadiusRange: document.getElementById('arrayRadiusRange'),
-      arrayRadiusInput: document.getElementById('arrayRadiusInput'),
-      viewMode: document.getElementById('viewMode'),
-      diagramTheme: document.getElementById('diagramTheme'),
-      optShowGrid: document.getElementById('optShowGrid'),
-      optShowBeams: document.getElementById('optShowBeams'),
-      optShowAngles: document.getElementById('optShowAngles'),
-      optShowSweetSpot: document.getElementById('optShowSweetSpot'),
-      optShowRoom: document.getElementById('optShowRoom'),
-      optShowSub: document.getElementById('optShowSub'),
+// ... existing code ...
       roomDimensionsPanel: document.getElementById('roomDimensionsPanel'),
       roomWidth: document.getElementById('roomWidth'),
       roomDepth: document.getElementById('roomDepth'),
-      statCount: document.getElementById('statCount'),
-      statOrder2D: document.getElementById('statOrder2D'),
-      statOrder3D: document.getElementById('statOrder3D'),
-      statNote: document.getElementById('statNote'),
       ringCount: document.getElementById('ringCount'),
-      ringElevation: document.getElementById('ringElevation'),
-      ringOffset: document.getElementById('ringOffset'),
-      ringRadius: document.getElementById('ringRadius'),
-      clipboardHelper: document.getElementById('clipboardHelper')
-    };
+// ... existing code ...
+      // Pin main speakers to the outer edge of the diagram using the array radius
+      const mainMaxDist = state.speakers
+        .filter(s => !s.isSub)
+        .reduce((m, s) => Math.max(m, s.dist), state.arrayRadius || 2.5);
+      const maxR = Math.max(0.5, mainMaxDist);
 
-    // --- SVG Diagram Generator ---
-
-    /**
-     * Computes palette colors for the SVG based on selected theme ('dark' or 'light')
-     */
-    function getPalette(theme) {
-      if (theme === 'light') {
-        return {
-          bg: '#ffffff',
-          panelBg: '#f8fafc',
-          border: '#cbd5e1',
-          grid: '#e2e8f0',
-          gridStrong: '#94a3b8',
-          textPrimary: '#0f172a',
-          textSecondary: '#475569',
-          textMuted: '#64748b',
-          sweetSpotFill: 'rgba(2, 132, 199, 0.10)',
-          sweetSpotStroke: 'rgba(2, 132, 199, 0.45)',
-          listenerFill: '#0f172a',
-          roomStroke: '#64748b',
-          subFill: '#334155',
-          subText: '#ffffff'
-        };
-      }
-      return {
-        bg: '#090f1d',
-        panelBg: '#0f172a',
-        border: '#1e293b',
-        grid: '#1e293b',
-        gridStrong: '#334155',
-        textPrimary: '#f8fafc',
-        textSecondary: '#94a3b8',
-        textMuted: '#64748b',
-        sweetSpotFill: 'rgba(34, 211, 238, 0.10)',
-        sweetSpotStroke: 'rgba(34, 211, 238, 0.45)',
-        listenerFill: '#e2e8f0',
-        roomStroke: '#475569',
-        subFill: '#1e293b',
-        subText: '#e2e8f0'
-      };
-    }
-
-    /**
-     * Escapes XML special characters for safe SVG text rendering
-     */
-    function escapeXml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&apos;');
-    }
-
-    /**
-     * Generates the complete standalone SVG markup for the current state
-     */
-    function buildDiagramSVG() {
-      const p = getPalette(state.theme);
-      const isDual = state.viewMode === 'dual';
-      const svgW = isDual ? 1040 : 620;
-      const svgH = 620;
-
-      // Pin speakers to the outer edge of the diagram by matching maxR to the speaker radius
-      const maxSpkDist = state.speakers.reduce((m, s) => Math.max(m, s.dist), state.arrayRadius || 2.5);
-      const maxR = Math.max(0.5, maxSpkDist);
-
-      // Panel geometries with room outside the edge-mounted speakers for labels and compass degrees
+      // Panel geometries with generous margin outside edge-mounted speakers for labels & angle readouts
       const topCx = isDual ? 275 : 310;
       const topCy = 338;
       const topPlotR = isDual ? 172 : 185;
-
-      const sideCx = isDual ? 785 : 310;
-      const sideCy = 338;
-      const sidePlotR = isDual ? 172 : 185;
-
-      let svgParts = [];
-
-      svgParts.push(`<svg id="ambisonicsSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto block" data-top-cx="${topCx}" data-top-cy="${topCy}" data-top-r="${topPlotR}" data-max-r="${maxR}">`);
-
-      // Embedded font & clean styling for standalone SVG export
-      svgParts.push(`
-        <defs>
-          <style>
-            .title-text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700; }
-            .ui-text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 500; }
-            .mono-text { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; }
-            .spk-node { cursor: grab; }
-            .spk-node:active { cursor: grabbing; }
-          </style>
-        </defs>
-      `);
-
-      // Background
-      svgParts.push(`<rect x="0" y="0" width="${svgW}" height="${svgH}" fill="${p.bg}" />`);
-
-      // Header Banner inside SVG
-      const mainCount = state.speakers.filter(s => !s.isSub).length;
-      const subCount = state.speakers.filter(s => s.isSub).length;
-      const countText = subCount > 0 ? `${mainCount}.${subCount} (${mainCount} Spk + ${subCount} Sub)` : `${mainCount} Loudspeakers`;
-      const dirText = state.direction === 'cw' ? 'CW ↻' : 'CCW ↺';
-      svgParts.push(`
-        <text x="28" y="38" fill="${p.textPrimary}" font-size="18" class="title-text">${escapeXml(state.title || 'Ambisonics Speaker Array')}</text>
-        <text x="28" y="57" fill="${p.textSecondary}" font-size="11.5" class="ui-text">
-          ${countText} • Scale: ${maxR.toFixed(1)}m radius • Order: ${dirText} (0° Front, +90° Left)
-        </text>
-      `);
-
-      // Divider line under header
-      svgParts.push(`<line x1="28" y1="70" x2="${svgW - 28}" y2="70" stroke="${p.border}" stroke-width="1" />`);
-
-      // Render Top-Down View
-      if (state.viewMode === 'top' || state.viewMode === 'dual') {
-        svgParts.push(renderTopDownPanel(topCx, topCy, topPlotR, maxR, p));
-      }
-
-      // Vertical separator in Dual Mode
-      if (isDual) {
-        svgParts.push(`<line x1="548" y1="88" x2="548" y2="${svgH - 42}" stroke="${p.border}" stroke-width="1" stroke-dasharray="4 4" />`);
-      }
-
-      // Render Side Elevation View
-      if (state.viewMode === 'side' || state.viewMode === 'dual') {
-        svgParts.push(renderSideElevationPanel(sideCx, sideCy, sidePlotR, maxR, p));
-      }
-
-      // Footer Legend inside SVG
-      const legendY = svgH - 18;
-      svgParts.push(`
-        <g transform="translate(28, ${legendY})" font-size="10.5" class="ui-text" fill="${p.textSecondary}">
-          <circle cx="5" cy="-4" r="4" fill="${getElevationColor(-30, state.theme)}" />
-          <text x="14" y="0">Lower (&lt;0°)</text>
-          <circle cx="96" cy="-4" r="4" fill="${getElevationColor(0, state.theme)}" />
-          <text x="105" y="0">Ear Level (0°)</text>
-          <circle cx="195" cy="-4" r="4" fill="${getElevationColor(35, state.theme)}" />
-          <text x="204" y="0">Upper (&gt;0°)</text>
-          <circle cx="285" cy="-4" r="4" fill="${getElevationColor(85, state.theme)}" />
-          <text x="294" y="0">Zenith (≥75°)</text>
+// ... existing code ...
           <rect x="378" y="-8" width="8" height="8" rx="1.5" fill="${getElevationColor(0, state.theme, true)}" />
           <text x="391" y="0">Sub / LFE</text>
         </g>
-        <text x="${svgW - 28}" y="${legendY}" text-anchor="end" font-size="10" class="mono-text" fill="${p.textMuted}">Ambisonics Speaker Diagrams</text>
+        <text x="${svgW - 28}" y="${legendY}" text-anchor="end" font-size="10" class="mono-text" fill="${p.textMuted}">Loudspeaker Array Designer</text>
       `);
 
       svgParts.push(`</svg>`);
       return svgParts.join('\n');
+    }
+
+    /**
+     * Resolves overlapping 2D points by grouping nearby items and fanning them neatly
+     * so neither speaker icons nor labels stack ambiguously on top of each other.
+     */
+    function declutterNodes(items, thresholdPx, spreadPx, radialMode, cx, cy) {
+      const visited = new Array(items.length).fill(false);
+      for (let i = 0; i < items.length; i++) {
+        if (visited[i]) continue;
+        const cluster = [i];
+        visited[i] = true;
+        for (let j = i + 1; j < items.length; j++) {
+          if (visited[j]) continue;
+          const dx = items[j].baseX - items[i].baseX;
+          const dy = items[j].baseY - items[i].baseY;
+          if (Math.hypot(dx, dy) < thresholdPx) {
+            cluster.push(j);
+            visited[j] = true;
+          }
+        }
+        if (cluster.length > 1) {
+          // Sort cluster by elevation then index for predictable visual ordering
+          cluster.sort((a, b) => items[a].s.el - items[b].s.el || items[a].idx - items[b].idx);
+          const mid = (cluster.length - 1) / 2;
+
+          // Compute tangent unit vector (or horizontal vector in side view)
+          let tx = 1;
+          let ty = 0;
+          if (radialMode) {
+            const vx = items[cluster[0]].baseX - cx;
+            const vy = items[cluster[0]].baseY - cy;
+            const len = Math.hypot(vx, vy);
+            if (len > 4) {
+              // Tangent perpendicular to radius
+              tx = -vy / len;
+              ty = vx / len;
+            }
+          }
+
+          cluster.forEach((itemIdx, k) => {
+            const offset = (k - mid) * spreadPx;
+            items[itemIdx].x = items[itemIdx].baseX + tx * offset;
+            items[itemIdx].y = items[itemIdx].baseY + ty * offset;
+            items[itemIdx].clustered = true;
+          });
+        }
+      }
+    }
+
+    /**
+     * Iteratively pushes overlapping label bounding boxes apart so numbers are always legible.
+     */
+    function declutterLabels(labels, iterations = 10) {
+      for (let iter = 0; iter < iterations; iter++) {
+        for (let i = 0; i < labels.length; i++) {
+          for (let j = i + 1; j < labels.length; j++) {
+            const a = labels[i];
+            const b = labels[j];
+            const overlapX = (a.w + b.w) / 2 + 4 - Math.abs(a.x - b.x);
+            const overlapY = (a.h + b.h) / 2 + 3 - Math.abs(a.y - b.y);
+            if (overlapX > 0 && overlapY > 0) {
+              if (overlapX < overlapY) {
+                const dir = a.x <= b.x ? -1 : 1;
+                a.x += dir * (overlapX / 2);
+                b.x -= dir * (overlapX / 2);
+              } else {
+                const dir = a.y <= b.y ? -1 : 1;
+                a.y += dir * (overlapY / 2);
+                b.y -= dir * (overlapY / 2);
+              }
+            }
+          }
+        }
+      }
     }
 
     /**
@@ -960,7 +342,6 @@
 
       // Polar Grid
       if (state.showGrid) {
-        // Concentric distance rings at 1/3, 2/3, and outer edge (maxR)
         [1 / 3, 2 / 3].forEach(frac => {
           const r = maxR * frac;
           const pxR = plotR * frac;
@@ -969,7 +350,6 @@
         });
         out.push(`<text x="${cx + 4}" y="${(cy - plotR + 12).toFixed(1)}" font-size="9.5" class="mono-text" fill="${p.textSecondary}">${maxR.toFixed(1)}m</text>`);
 
-        // Radial spokes every 30°
         for (let deg = 0; deg < 360; deg += 30) {
           const rad = degToRad(deg);
           const x2 = cx - Math.sin(rad) * plotR;
@@ -979,29 +359,8 @@
         }
       }
 
-      // Outer compass ring
+      // Outer compass ring (no fixed degree markings; only dynamic speaker angles are shown)
       out.push(`<circle cx="${cx}" cy="${cy}" r="${plotR}" fill="none" stroke="${p.gridStrong}" stroke-width="1.2" />`);
-
-      // Compass Degree Markings (0° Front, +90° Left, -90° Right, ±180° Rear)
-      if (state.showAngles) {
-        const markers = [
-          { az: 0, label: '0° FRONT' },
-          { az: 45, label: '+45°' },
-          { az: 90, label: '+90° L' },
-          { az: 135, label: '+135°' },
-          { az: 180, label: '±180° REAR' },
-          { az: -135, label: '-135°' },
-          { az: -90, label: '-90° R' },
-          { az: -45, label: '-45°' }
-        ];
-        markers.forEach(m => {
-          const rad = degToRad(m.az);
-          const lx = cx - Math.sin(rad) * (plotR + 40);
-          const ly = cy - Math.cos(rad) * (plotR + 40);
-          const anchor = Math.abs(m.az) === 0 || Math.abs(m.az) === 180 ? 'middle' : (m.az > 0 ? 'end' : 'start');
-          out.push(`<text x="${lx.toFixed(1)}" y="${(ly + 3.5).toFixed(1)}" text-anchor="${anchor}" font-size="10.5" class="mono-text" fill="${p.textSecondary}">${m.label}</text>`);
-        });
-      }
 
       // Sweet Spot Zone
       if (state.showSweetSpot) {
@@ -1012,56 +371,76 @@
       // Listener Head Icon at Center (facing Front / Up)
       out.push(`
         <g transform="translate(${cx}, ${cy})">
-          <!-- Shoulders -->
           <ellipse cx="0" cy="2" rx="14" ry="7" fill="none" stroke="${p.listenerFill}" stroke-width="1.5" stroke-opacity="0.45" />
-          <!-- Nose indicator pointing Front -->
           <polygon points="0,-13 -3.5,-7 3.5,-7" fill="${p.listenerFill}" />
-          <!-- Head -->
           <circle cx="0" cy="0" r="8" fill="${p.bg}" stroke="${p.listenerFill}" stroke-width="1.8" />
         </g>
       `);
 
-      // Sort speakers so lower elevation renders first, higher on top
-      const indexedSpeakers = state.speakers.map((s, idx) => ({ s, idx }))
-        .sort((a, b) => a.s.el - b.s.el);
+      // Build projected nodes and declutter any overlapping speakers
+      const nodes = state.speakers.map((s, idx) => {
+        const azRad = degToRad(s.az);
+        const elRad = degToRad(s.el);
+        const horizR = s.isSub ? (s.dist * scale) : (s.dist * Math.cos(elRad) * scale);
+        const baseX = cx - Math.sin(azRad) * horizR;
+        const baseY = cy - Math.cos(azRad) * horizR;
+        return { s, idx, azRad, baseX, baseY, x: baseX, y: baseY, clustered: false };
+      }).sort((a, b) => a.s.el - b.s.el);
+
+      declutterNodes(nodes, 24, 24, true, cx, cy);
 
       // Acoustic Axis Lines (rendered behind speaker icons)
       if (state.showBeams) {
-        indexedSpeakers.forEach(({ s }) => {
-          const azRad = degToRad(s.az);
-          const elRad = degToRad(s.el);
-          const horizR = s.dist * Math.cos(elRad) * scale;
-          const sx = cx - Math.sin(azRad) * horizR;
-          const sy = cy - Math.cos(azRad) * horizR;
+        nodes.forEach(({ s, x, y }) => {
           const color = getElevationColor(s.el, state.theme, s.isSub);
-          out.push(`<line x1="${sx}" y1="${sy}" x2="${cx}" y2="${cy}" stroke="${color}" stroke-width="1.1" stroke-opacity="${s.isSub ? '0.2' : '0.28'}" stroke-dasharray="4 3" />`);
+          out.push(`<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${cx}" y2="${cy}" stroke="${color}" stroke-width="1.1" stroke-opacity="${s.isSub ? '0.2' : '0.28'}" stroke-dasharray="4 3" />`);
         });
       }
 
-      // Speaker Icons
-      indexedSpeakers.forEach(({ s, idx }) => {
-        const azRad = degToRad(s.az);
-        const elRad = degToRad(s.el);
-        const horizR = s.dist * Math.cos(elRad) * scale;
-        const sx = cx - Math.sin(azRad) * horizR;
-        const sy = cy - Math.cos(azRad) * horizR;
+      // Prepare label positions and resolve any label overlaps
+      const labelItems = nodes.map(n => {
+        const displayLabel = n.s.label || String(n.idx + 1);
+        const azStr = `${n.s.az > 0 ? '+' : ''}${n.s.az}°`;
+        const elStr = !n.s.isSub && Math.abs(n.s.el) >= 1 ? ` / ${n.s.el > 0 ? '+' : ''}${n.s.el}°` : '';
+        const angleText = state.showAngles ? `${azStr}${elStr}` : '';
+        const textLen = Math.max(displayLabel.length, angleText.length * 0.85);
+        const w = Math.max(24, textLen * 7.2 + 10);
+        const h = state.showAngles ? 28 : 16;
+
+        // Place label radially outward from speaker
+        const vx = n.x - cx;
+        const vy = n.y - cy;
+        const vLen = Math.hypot(vx, vy) || 1;
+        const ux = vx / vLen;
+        const uy = vy / vLen;
+        const offsetDist = n.s.isSub ? 28 : 27;
+
+        return {
+          node: n,
+          displayLabel,
+          angleText,
+          w,
+          h,
+          x: n.x + ux * offsetDist,
+          y: n.y + uy * offsetDist
+        };
+      });
+
+      declutterLabels(labelItems, 14);
+
+      // Render Speaker Icons
+      nodes.forEach(({ s, idx, x, y }) => {
         const color = getElevationColor(s.el, state.theme, s.isSub);
         const isSelected = state.selectedIndex === idx;
-
-        // Rotation so speaker trapezoid faces the center (listener)
-        // At az=0 (top), speaker should face down (180 deg). As az increases CCW, rotation decreases.
         const rotDeg = 180 - s.az;
 
-        out.push(`<g class="spk-node" data-index="${idx}" transform="translate(${sx.toFixed(1)}, ${sy.toFixed(1)})">`);
+        out.push(`<g class="spk-node" data-index="${idx}" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">`);
 
-        // Selection halo
         if (isSelected) {
           out.push(`<circle cx="0" cy="0" r="${s.isSub ? 21 : 19}" fill="${color}" fill-opacity="0.18" stroke="${color}" stroke-width="1.5" />`);
         }
 
-        // Speaker / Subwoofer cabinet icon
         if (s.isSub) {
-          // Square Subwoofer enclosure with woofer driver circle
           out.push(`
             <g transform="rotate(${rotDeg.toFixed(1)})">
               <rect x="-12" y="-11" width="24" height="22" rx="3.5" fill="${p.panelBg}" stroke="${color}" stroke-width="2" />
@@ -1075,34 +454,34 @@
         } else {
           out.push(`
             <g transform="rotate(${rotDeg.toFixed(1)})">
-              <!-- Cabinet body -->
               <polygon points="-9,-9 9,-9 12,8 -12,8" fill="${p.panelBg}" stroke="${color}" stroke-width="2" stroke-linejoin="round" />
-              <!-- Driver / Grille line facing listener -->
               <line x1="-8" y1="-9" x2="8" y2="-9" stroke="${color}" stroke-width="3" stroke-linecap="round" />
             </g>
           `);
         }
 
-        // Speaker Label Badge
-        const labelOffset = s.isSub ? 25 : 22;
-        const lx = -Math.sin(azRad) * labelOffset;
-        const ly = -Math.cos(azRad) * labelOffset;
-        const displayLabel = s.label || String(idx + 1);
-        out.push(`
-          <text x="${lx.toFixed(1)}" y="${(ly + 3.5).toFixed(1)}" text-anchor="middle" font-size="10.5" font-weight="600" class="mono-text" fill="${s.isSub ? color : p.textPrimary}">
-            ${escapeXml(displayLabel)}
-          </text>
-        `);
+        out.push(`</g>`);
+      });
 
-        // Elevation tag if non-zero (for main speakers)
-        if (!s.isSub && Math.abs(s.el) >= 1 && state.showAngles) {
-          out.push(`
-            <text x="${lx.toFixed(1)}" y="${(ly + 14).toFixed(1)}" text-anchor="middle" font-size="8.5" class="mono-text" fill="${color}">
-              ${s.el > 0 ? '+' : ''}${s.el}°
-            </text>
-          `);
+      // Render Clear Pill Badges for Speaker Numbers & Live Angles
+      labelItems.forEach(lbl => {
+        const { node, displayLabel, angleText, w, h, x, y } = lbl;
+        const color = getElevationColor(node.s.el, state.theme, node.s.isSub);
+        const isSelected = state.selectedIndex === node.idx;
+        const distToNode = Math.hypot(x - node.x, y - node.y);
+
+        if (distToNode > 34) {
+          out.push(`<line x1="${node.x.toFixed(1)}" y1="${node.y.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="0.9" stroke-opacity="0.45" />`);
         }
 
+        out.push(`<g class="spk-node" data-index="${node.idx}" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">`);
+        out.push(`<rect x="${(-w / 2).toFixed(1)}" y="${(-h / 2).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="5" fill="${p.bg}" fill-opacity="0.92" stroke="${isSelected ? color : p.border}" stroke-width="${isSelected ? 1.4 : 0.9}" />`);
+        if (state.showAngles) {
+          out.push(`<text x="0" y="-2.5" text-anchor="middle" font-size="10" font-weight="700" class="mono-text" fill="${node.s.isSub ? color : p.textPrimary}">${escapeXml(displayLabel)}</text>`);
+          out.push(`<text x="0" y="9.5" text-anchor="middle" font-size="8.5" font-weight="500" class="mono-text" fill="${color}">${escapeXml(angleText)}</text>`);
+        } else {
+          out.push(`<text x="0" y="3.5" text-anchor="middle" font-size="10" font-weight="700" class="mono-text" fill="${node.s.isSub ? color : p.textPrimary}">${escapeXml(displayLabel)}</text>`);
+        }
         out.push(`</g>`);
       });
 
@@ -1126,7 +505,6 @@
           const pxR = plotR * frac;
           out.push(`<circle cx="${cx}" cy="${cy}" r="${pxR.toFixed(1)}" fill="none" stroke="${p.grid}" stroke-width="1" />`);
         });
-        // Elevation spokes every 30°
         for (let deg = 0; deg < 360; deg += 30) {
           const rad = degToRad(deg);
           const x2 = cx + Math.cos(rad) * plotR;
@@ -1142,19 +520,9 @@
       // Ear-level horizontal reference line
       out.push(`<line x1="${cx - plotR - 10}" y1="${cy}" x2="${cx + plotR + 10}" y2="${cy}" stroke="${p.gridStrong}" stroke-width="1.2" />`);
 
-      // Elevation Labels
-      if (state.showAngles) {
-        out.push(`<text x="${cx}" y="${cy - plotR - 24}" text-anchor="middle" font-size="10.5" class="mono-text" fill="${p.textSecondary}">+90° ZENITH</text>`);
-        out.push(`<text x="${cx}" y="${cy + plotR + 28}" text-anchor="middle" font-size="10.5" class="mono-text" fill="${p.textSecondary}">-90° NADIR</text>`);
-        out.push(`<text x="${cx + plotR + 16}" y="${cy + 3.5}" text-anchor="start" font-size="10.5" class="mono-text" fill="${p.textSecondary}">FRONT</text>`);
-        out.push(`<text x="${cx - plotR - 16}" y="${cy + 3.5}" text-anchor="end" font-size="10.5" class="mono-text" fill="${p.textSecondary}">REAR</text>`);
-        // +45 / -45 subtle markers on front side
-        const x45 = cx + Math.cos(degToRad(45)) * (plotR + 18);
-        const y45Up = cy - Math.sin(degToRad(45)) * (plotR + 18);
-        const y45Dn = cy + Math.sin(degToRad(45)) * (plotR + 18);
-        out.push(`<text x="${x45.toFixed(1)}" y="${y45Up.toFixed(1)}" text-anchor="start" font-size="9.5" class="mono-text" fill="${p.textMuted}">+45°</text>`);
-        out.push(`<text x="${x45.toFixed(1)}" y="${(y45Dn + 6).toFixed(1)}" text-anchor="start" font-size="9.5" class="mono-text" fill="${p.textMuted}">-45°</text>`);
-      }
+      // Minimal orientation words (no fixed angle numbers)
+      out.push(`<text x="${cx + plotR + 14}" y="${cy + 3.5}" text-anchor="start" font-size="10" class="mono-text" fill="${p.textMuted}">FRONT</text>`);
+      out.push(`<text x="${cx - plotR - 14}" y="${cy + 3.5}" text-anchor="end" font-size="10" class="mono-text" fill="${p.textMuted}">REAR</text>`);
 
       // Sweet Spot
       if (state.showSweetSpot) {
@@ -1170,34 +538,80 @@
         </g>
       `);
 
-      // Speakers projected onto Side Plane (X = forward = r*cos(el)*cos(az), Y = up = r*sin(el))
-      state.speakers.forEach((s, idx) => {
+      // Project speakers onto Side Plane and declutter L/R overlaps
+      const sideNodes = state.speakers.map((s, idx) => {
         const azRad = degToRad(s.az);
         const elRad = degToRad(s.el);
         const xFwd = s.dist * Math.cos(elRad) * Math.cos(azRad);
         const zUp = s.dist * Math.sin(elRad);
+        const baseX = cx + xFwd * scale;
+        const baseY = cy - zUp * scale;
+        return { s, idx, baseX, baseY, x: baseX, y: baseY, clustered: false };
+      });
 
-        const sx = cx + xFwd * scale;
-        const sy = cy - zUp * scale;
+      declutterNodes(sideNodes, 16, 16, false, cx, cy);
+
+      // Prepare decluttered labels for Side View
+      const sideLabels = sideNodes.map(n => {
+        const displayLabel = n.s.label || String(n.idx + 1);
+        const angleText = state.showAngles ? `${n.s.el > 0 ? '+' : ''}${n.s.el}°` : '';
+        const textLen = Math.max(displayLabel.length, angleText.length * 0.85);
+        const w = Math.max(20, textLen * 7 + 8);
+        const h = state.showAngles ? 24 : 15;
+        return {
+          node: n,
+          displayLabel,
+          angleText,
+          w,
+          h,
+          x: n.x,
+          y: n.y - 20
+        };
+      });
+
+      declutterLabels(sideLabels, 14);
+
+      // Acoustic Beams & Speaker Markers
+      sideNodes.forEach(({ s, idx, x, y }) => {
         const color = getElevationColor(s.el, state.theme, s.isSub);
         const isSelected = state.selectedIndex === idx;
 
         if (state.showBeams) {
-          out.push(`<line x1="${sx}" y1="${sy}" x2="${cx}" y2="${cy}" stroke="${color}" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="3 3" />`);
+          out.push(`<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${cx}" y2="${cy}" stroke="${color}" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="3 3" />`);
         }
 
-        out.push(`<g class="spk-node" data-index="${idx}" transform="translate(${sx.toFixed(1)}, ${sy.toFixed(1)})">`);
+        out.push(`<g class="spk-node" data-index="${idx}" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">`);
         if (isSelected) {
-          out.push(`<circle cx="0" cy="0" r="14" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="1.5" />`);
+          out.push(`<circle cx="0" cy="0" r="13" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="1.5" />`);
         }
         if (s.isSub) {
-          out.push(`<rect x="-7.5" y="-7.5" width="15" height="15" rx="2.5" fill="${p.panelBg}" stroke="${color}" stroke-width="2" />`);
-          out.push(`<circle cx="0" cy="0" r="2.8" fill="${color}" />`);
-        } else {
-          out.push(`<circle cx="0" cy="0" r="7" fill="${p.panelBg}" stroke="${color}" stroke-width="2" />`);
+          out.push(`<rect x="-7" y="-7" width="14" height="14" rx="2.5" fill="${p.panelBg}" stroke="${color}" stroke-width="2" />`);
           out.push(`<circle cx="0" cy="0" r="2.5" fill="${color}" />`);
+        } else {
+          out.push(`<circle cx="0" cy="0" r="6.5" fill="${p.panelBg}" stroke="${color}" stroke-width="2" />`);
+          out.push(`<circle cx="0" cy="0" r="2.3" fill="${color}" />`);
         }
-        out.push(`<text x="0" y="-11" text-anchor="middle" font-size="9.5" font-weight="600" class="mono-text" fill="${s.isSub ? color : p.textPrimary}">${escapeXml(s.label || String(idx + 1))}</text>`);
+        out.push(`</g>`);
+      });
+
+      // Render Side View Pill Labels
+      sideLabels.forEach(lbl => {
+        const { node, displayLabel, angleText, w, h, x, y } = lbl;
+        const color = getElevationColor(node.s.el, state.theme, node.s.isSub);
+        const isSelected = state.selectedIndex === node.idx;
+
+        if (Math.hypot(x - node.x, y - node.y) > 26) {
+          out.push(`<line x1="${node.x.toFixed(1)}" y1="${node.y.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="0.8" stroke-opacity="0.4" />`);
+        }
+
+        out.push(`<g class="spk-node" data-index="${node.idx}" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">`);
+        out.push(`<rect x="${(-w / 2).toFixed(1)}" y="${(-h / 2).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${p.bg}" fill-opacity="0.9" stroke="${isSelected ? color : p.border}" stroke-width="${isSelected ? 1.3 : 0.8}" />`);
+        if (state.showAngles) {
+          out.push(`<text x="0" y="-1.5" text-anchor="middle" font-size="9" font-weight="700" class="mono-text" fill="${node.s.isSub ? color : p.textPrimary}">${escapeXml(displayLabel)}</text>`);
+          out.push(`<text x="0" y="8.5" text-anchor="middle" font-size="8" class="mono-text" fill="${color}">${escapeXml(angleText)}</text>`);
+        } else {
+          out.push(`<text x="0" y="3" text-anchor="middle" font-size="9" font-weight="700" class="mono-text" fill="${node.s.isSub ? color : p.textPrimary}">${escapeXml(displayLabel)}</text>`);
+        }
         out.push(`</g>`);
       });
 
@@ -1205,153 +619,20 @@
       return out.join('\n');
     }
 
-    // --- Analysis & UI Rendering ---
+    // --- UI Sync ---
 
     function updateAnalysis() {
-      const mainSpeakers = state.speakers.filter(s => !s.isSub);
-      const subCount = state.speakers.length - mainSpeakers.length;
-      const n = mainSpeakers.length;
-
-      els.statCount.textContent = subCount > 0 ? `${n}.${subCount}` : String(n);
+      const subCount = state.speakers.filter(s => s.isSub).length;
       els.subCountLabel.textContent = String(subCount);
       els.optShowSub.checked = subCount > 0;
-
-      // Theoretical max 2D Ambisonics order: 2N + 1 <= L  => N = floor((L - 1) / 2)
-      const order2D = n >= 3 ? Math.floor((n - 1) / 2) : 0;
-
-      // Theoretical max 3D Ambisonics order: (N + 1)^2 <= L => N = floor(sqrt(L) - 1)
-      const has3D = mainSpeakers.some(s => Math.abs(s.el) >= 10);
-      const order3D = has3D && n >= 4 ? Math.floor(Math.sqrt(n) - 1) : 0;
-
-      els.statOrder2D.textContent = ordinal(order2D);
-      els.statOrder3D.textContent = has3D ? ordinal(order3D) : '2D Only';
-
-      const subNote = subCount > 0 ? ` + ${subCount} LFE sub${subCount > 1 ? 's' : ''}` : '';
-      if (n === 0 && subCount === 0) {
-        els.statNote.textContent = 'Add speakers or choose a preset to begin designing your array.';
-      } else if (!has3D) {
-        els.statNote.textContent = `Horizontal 2D array (${n} ch${subNote}). Supports up to ${ordinal(order2D)}-order 2D Ambisonics (${2 * order2D + 1} ACN channels).`;
-      } else {
-        const layers = new Set(mainSpeakers.map(s => Math.round(s.el / 10) * 10)).size;
-        els.statNote.textContent = `3D Periphonic array (${n} ch${subNote}) across ~${layers} elevation layers. Supports up to ${ordinal(order3D)}-order 3D Ambisonics (${(order3D + 1) ** 2} ACN channels).`;
-      }
     }
-
-    function renderTable() {
-      if (state.speakers.length === 0) {
-        els.speakerTableBody.innerHTML = `
-          <tr>
-            <td colspan="6" class="py-6 text-center text-slate-500 font-sans">No speakers configured. Select a preset or click "+ Add Speaker".</td>
-          </tr>
-        `;
-        return;
-      }
-
-      els.speakerTableBody.innerHTML = state.speakers.map((s, idx) => {
-        const isSel = idx === state.selectedIndex;
-        const dotColor = getElevationColor(s.el, 'dark', s.isSub);
-        const typeBadge = s.isSub
-          ? `<span class="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/50">SUB</span>`
-          : '';
-        return `
-          <tr data-row-index="${idx}" class="cursor-pointer transition ${isSel ? 'bg-cyan-950/50 text-white' : 'hover:bg-slate-800/60 text-slate-300'}">
-            <td class="py-2 px-3">
-              <span class="inline-flex items-center gap-1.5">
-                <span class="w-2 h-2 ${s.isSub ? 'rounded-sm' : 'rounded-full'}" style="background:${dotColor}"></span>
-                ${idx + 1}
-              </span>
-            </td>
-            <td class="py-2 px-3 font-semibold">${escapeXml(s.label)}${typeBadge}</td>
-            <td class="py-2 px-3">${s.az > 0 ? '+' : ''}${s.az}°</td>
-            <td class="py-2 px-3">${s.el > 0 ? '+' : ''}${s.el}°</td>
-            <td class="py-2 px-3">${s.dist.toFixed(2)} m</td>
-            <td class="py-2 px-3 text-right">
-              <button data-del-index="${idx}" class="text-slate-500 hover:text-rose-400 px-1.5 py-0.5 rounded transition" title="Delete">✕</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function renderSelectedInspector() {
-      if (state.selectedIndex === null || !state.speakers[state.selectedIndex]) {
-        els.selectedInspector.classList.add('hidden');
-        return;
-      }
-      const s = state.speakers[state.selectedIndex];
-      els.selectedInspector.classList.remove('hidden');
-      els.editTypeHeading.textContent = s.isSub ? 'Subwoofer' : 'Speaker';
-      els.editType.value = s.isSub ? 'sub' : 'speaker';
-      els.editIndex.textContent = state.selectedIndex + 1;
-      els.editLabel.value = s.label;
-      els.editAz.value = s.az;
-      els.editEl.value = s.el;
-      els.editDist.value = s.dist;
-    }
-
-    function renderDiagram() {
-      els.svgContainer.innerHTML = buildDiagramSVG();
-      attachSvgInteractions();
-    }
-
-    function renderAll() {
-      renderDiagram();
-      renderTable();
-      renderSelectedInspector();
-      updateAnalysis();
-    }
-
-    // --- Interactive SVG Dragging & Selection ---
-
-    function attachSvgInteractions() {
-      const svg = document.getElementById('ambisonicsSvg');
-      if (!svg) return;
-
-      // Click / Pointerdown on speaker nodes
-      svg.querySelectorAll('.spk-node').forEach(node => {
-        node.addEventListener('pointerdown', (e) => {
-          e.stopPropagation();
-          const idx = parseInt(node.getAttribute('data-index'), 10);
-          state.selectedIndex = idx;
-          renderSelectedInspector();
-          renderTable();
-
-          // Only enable drag if the clicked node is inside the topDownView
-          if (node.closest('#topDownView')) {
-            state.draggingIndex = idx;
-            svg.setPointerCapture(e.pointerId);
-          } else {
-            renderDiagram();
-          }
-        });
-      });
-
-      // Clicking empty canvas deselects
-      svg.addEventListener('pointerdown', (e) => {
-        if (!e.target.closest('.spk-node')) {
-          if (state.selectedIndex !== null) {
-            state.selectedIndex = null;
-            renderAll();
-          }
-        }
-      });
-
-      svg.addEventListener('pointermove', (e) => {
-        if (state.draggingIndex === null) return;
-        const spk = state.speakers[state.draggingIndex];
-        if (!spk) return;
-
-        // Convert client coordinates to SVG viewBox coordinates
-        const pt = svg.createSVGPoint();
-        pt.x = e.clientX;
-        pt.y = e.clientY;
-        const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
-
+// ... existing code ...
         const topCx = parseFloat(svg.getAttribute('data-top-cx'));
         const topCy = parseFloat(svg.getAttribute('data-top-cy'));
+        const topR = parseFloat(svg.getAttribute('data-top-r'));
+        const maxR = parseFloat(svg.getAttribute('data-max-r'));
 
         // Top-down math: dx = -sin(az)*r, dy = -cos(az)*r
-        // Only update azimuth on drag; keep distance from center locked
         const dx = svgPt.x - topCx;
         const dy = svgPt.y - topCy;
         const newAz = normalizeAzimuth(radToDeg(Math.atan2(-dx, -dy)));
@@ -1360,127 +641,19 @@
         const snap = e.shiftKey ? 5 : 1;
         spk.az = normalizeAzimuth(Math.round(newAz / snap) * snap);
 
+        // Subwoofers can also be dragged closer/further from the center;
+        // regular speakers stay locked at their manual distance from center.
+        if (spk.isSub && topR > 0 && maxR > 0) {
+          const pxDist = Math.hypot(dx, dy);
+          const meters = clamp((pxDist / topR) * maxR, 0.3, maxR);
+          spk.dist = Math.round(meters * 100) / 100;
+        }
+
         renderDiagram();
         renderSelectedInspector();
         renderTable();
       });
-
-      const endDrag = () => {
-        if (state.draggingIndex !== null) {
-          state.draggingIndex = null;
-        }
-      };
-      svg.addEventListener('pointerup', endDrag);
-      svg.addEventListener('pointercancel', endDrag);
-    }
-
-    // --- Export Functions ---
-
-    function downloadBlob(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    function exportSVG() {
-      try {
-        const svgMarkup = buildDiagramSVG();
-        const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
-        const safeName = (state.title || 'ambisonics-setup').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        downloadBlob(blob, `${safeName}.svg`);
-        showToast('Downloaded SVG vector diagram');
-      } catch (err) {
-        console.error(err);
-        showToast('Failed to export SVG', 'error');
-      }
-    }
-
-    function exportPNG() {
-      try {
-        const svgMarkup = buildDiagramSVG();
-        const svgBlob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(svgBlob);
-        const img = new Image();
-
-        img.onload = () => {
-          const isDual = state.viewMode === 'dual';
-          const width = (isDual ? 1040 : 620) * 2; // 2x Retina DPI
-          const height = 620 * 2;
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          URL.revokeObjectURL(url);
-
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              showToast('PNG generation failed', 'error');
-              return;
-            }
-            const safeName = (state.title || 'ambisonics-setup').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-            downloadBlob(blob, `${safeName}.png`);
-            showToast('Downloaded high-res PNG');
-          }, 'image/png');
-        };
-
-        img.onerror = () => {
-          URL.revokeObjectURL(url);
-          showToast('Error rendering PNG image', 'error');
-        };
-
-        img.src = url;
-      } catch (err) {
-        console.error(err);
-        showToast('Failed to export PNG', 'error');
-      }
-    }
-
-    function copyCoordinatesJSON() {
-      try {
-        // Structured in a clean AllRAD-friendly JSON format
-        const payload = {
-          Name: state.title,
-          Description: `Generated by Ambisonics Speaker Diagrams (${state.direction.toUpperCase()} sequence, 0° Front)`,
-          LoudspeakerLayout: {
-            Loudspeakers: state.speakers.map((s, idx) => ({
-              Channel: idx + 1,
-              Label: s.label,
-              Azimuth: s.az,
-              Elevation: s.el,
-              Radius: s.dist,
-              IsSubwoofer: !!s.isSub,
-              IsImaginary: false
-            }))
-          }
-        };
-        const text = JSON.stringify(payload, null, 2);
-        els.clipboardHelper.value = text;
-        els.clipboardHelper.select();
-        els.clipboardHelper.setSelectionRange(0, text.length);
-        document.execCommand('copy');
-        showToast('Copied AllRAD JSON coordinates to clipboard');
-      } catch (err) {
-        console.error(err);
-        showToast('Unable to copy to clipboard', 'error');
-      }
-    }
-
-    // --- Event Listeners Setup ---
-
-    function initPresets() {
-      els.presetGrid.innerHTML = PRESETS.map(preset => `
-        <button data-preset="${preset.id}" class="preset-btn text-left p-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/50 transition group">
-          <div class="text-xs font-semibold text-slate-200 group-hover:text-white">${preset.name}</div>
-          <div class="text-[10px] font-mono text-slate-400 group-hover:text-cyan-400 mt-0.5">${preset.badge}</div>
-        </button>
-      `).join('');
-
+// ... existing code ...
       els.presetGrid.addEventListener('click', (e) => {
         const btn = e.target.closest('.preset-btn');
         if (!btn) return;
@@ -1496,6 +669,7 @@
         els.arrayRadiusRange.value = presetRadius;
         els.arrayRadiusInput.value = presetRadius;
         els.ringRadius.value = presetRadius;
+        els.spatLayoutSelect.value = '';
 
         state.speakers = [...built, ...existingSubs];
         reorderAndApplySequence(false);
@@ -1505,103 +679,37 @@
         renderAll();
         showToast(`Loaded ${preset.name} preset (${state.direction.toUpperCase()})`);
       });
-    }
 
-    function updateDirectionButtons() {
-      const isCW = state.direction === 'cw';
-      els.btnDirCCW.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium transition ' +
-        (!isCW ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200');
-      els.btnDirCW.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium transition ' +
-        (isCW ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200');
-      els.dirBadge.textContent = isCW ? 'ACN / CW ↻' : 'ACN / CCW ↺';
-    }
-
-    function initControls() {
-      // Direction & Sequence Controls
-      els.btnDirCCW.addEventListener('click', () => {
-        if (state.direction === 'ccw') return;
-        state.direction = 'ccw';
-        updateDirectionButtons();
-        reorderAndApplySequence(true);
-        renderAll();
-        showToast('Switched speaker sequence to Counter-Clockwise (CCW)');
+      // Populate SPAT5 Studio Layouts dropdown
+      SPAT_LAYOUTS.forEach(layout => {
+        const opt = document.createElement('option');
+        opt.value = layout.id;
+        opt.textContent = layout.name;
+        els.spatLayoutSelect.appendChild(opt);
       });
 
-      els.btnDirCW.addEventListener('click', () => {
-        if (state.direction === 'cw') return;
-        state.direction = 'cw';
-        updateDirectionButtons();
-        reorderAndApplySequence(true);
-        renderAll();
-        showToast('Switched speaker sequence to Clockwise (CW)');
-      });
+      els.spatLayoutSelect.addEventListener('change', (e) => {
+        const id = e.target.value;
+        if (!id) return;
+        const layout = SPAT_LAYOUTS.find(l => l.id === id);
+        if (!layout) return;
 
-      els.seqMode.addEventListener('change', (e) => {
-        state.seqMode = e.target.value;
-        els.customSeqPanel.classList.toggle('hidden', state.seqMode !== 'custom');
-        els.skipSeqPanel.classList.toggle('hidden', state.seqMode !== 'skip');
+        state.arrayRadius = layout.radius;
+        els.arrayRadiusRange.value = layout.radius;
+        els.arrayRadiusInput.value = layout.radius;
+        els.ringRadius.value = layout.radius;
+
+        state.speakers = layout.build();
         reorderAndApplySequence(false);
-        renderAll();
-      });
-
-      els.customSeqInput.addEventListener('input', (e) => {
-        state.customSequence = e.target.value;
-        reorderAndApplySequence(false);
-        renderAll();
-      });
-
-      els.skipSeqInput.addEventListener('input', (e) => {
-        state.skipChannels = e.target.value;
-        reorderAndApplySequence(false);
-        renderAll();
-      });
-
-      document.getElementById('btnApplySequence').addEventListener('click', () => {
-        reorderAndApplySequence(true);
-        renderAll();
-        showToast('Applied sequence and direction to array');
-      });
-
-      // Ring Generator
-      document.getElementById('btnReplaceRing').addEventListener('click', () => {
-        const count = clamp(parseInt(els.ringCount.value, 10) || 4, 1, 32);
-        const el = clamp(parseFloat(els.ringElevation.value) || 0, -90, 90);
-        const off = parseFloat(els.ringOffset.value) || 0;
-        const r = clamp(parseFloat(els.ringRadius.value) || 2.5, 0.5, 15);
-        state.arrayRadius = r;
-        els.arrayRadiusRange.value = r;
-        els.arrayRadiusInput.value = r;
-        const existingSubs = state.speakers.filter(s => s.isSub);
-        state.speakers = [...makeRing(count, el, off, r, 1), ...existingSubs];
-        reorderAndApplySequence(false);
+        state.title = layout.name;
         state.selectedIndex = null;
-        state.title = `${count}.0 Custom Ring (${el}° El)`;
         els.diagramTitle.value = state.title;
         renderAll();
-        showToast(`Generated ${count}-speaker ring (${state.direction.toUpperCase()})`);
+        showToast(`Loaded SPAT5 layout: ${layout.name}`);
       });
-
-      document.getElementById('btnAppendRing').addEventListener('click', () => {
-        const count = clamp(parseInt(els.ringCount.value, 10) || 4, 1, 32);
-        const el = clamp(parseFloat(els.ringElevation.value) || 0, -90, 90);
-        const off = parseFloat(els.ringOffset.value) || 0;
-        const r = clamp(parseFloat(els.ringRadius.value) || 2.5, 0.5, 15);
-        const startNum = state.speakers.filter(s => !s.isSub).length + 1;
-        const existingSubs = state.speakers.filter(s => s.isSub);
-        const mainSpeakers = state.speakers.filter(s => !s.isSub);
-        state.speakers = [...mainSpeakers, ...makeRing(count, el, off, r, startNum), ...existingSubs];
-        reorderAndApplySequence(false);
-        renderAll();
-        showToast(`Added ${count}-speaker ring at ${el}° elevation`);
-      });
-
-      // Diagram Settings
-      els.diagramTitle.addEventListener('input', (e) => {
-        state.title = e.target.value;
-        renderDiagram();
-      });
-
-      // Manual Array Distance (updates all speakers' distance from center)
+    }
+// ... existing code ...
+      // Manual Array Distance (updates all regular speakers' distance from center)
       const updateArrayRadius = (val) => {
         const parsed = parseFloat(val);
         if (isNaN(parsed)) return;
@@ -1610,151 +718,10 @@
         els.arrayRadiusRange.value = r;
         els.arrayRadiusInput.value = r;
         els.ringRadius.value = r;
-        state.speakers.forEach(s => { s.dist = r; });
-        renderAll();
-      };
-
-      els.arrayRadiusRange.addEventListener('input', (e) => updateArrayRadius(e.target.value));
-      els.arrayRadiusInput.addEventListener('input', (e) => updateArrayRadius(e.target.value));
-
-      els.viewMode.addEventListener('change', (e) => {
-        state.viewMode = e.target.value;
-        renderDiagram();
-      });
-
-      els.diagramTheme.addEventListener('change', (e) => {
-        state.theme = e.target.value;
-        renderDiagram();
-      });
-
-      els.optShowGrid.addEventListener('change', (e) => { state.showGrid = e.target.checked; renderDiagram(); });
-      els.optShowBeams.addEventListener('change', (e) => { state.showBeams = e.target.checked; renderDiagram(); });
-      els.optShowAngles.addEventListener('change', (e) => { state.showAngles = e.target.checked; renderDiagram(); });
-      els.optShowSweetSpot.addEventListener('change', (e) => { state.showSweetSpot = e.target.checked; renderDiagram(); });
-
-      // Include Sub Checkbox toggles at least 1 subwoofer on or removes all subwoofers
-      els.optShowSub.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          if (!state.speakers.some(s => s.isSub)) {
-            addSubwoofer();
-          }
-        } else {
-          state.speakers = state.speakers.filter(s => !s.isSub);
-          state.selectedIndex = null;
-          renderAll();
-          showToast('Removed subwoofer(s) from diagram');
-        }
-      });
-
-      document.getElementById('btnAddSubSidebar').addEventListener('click', addSubwoofer);
-      document.getElementById('btnAddSub').addEventListener('click', addSubwoofer);
-
-      els.optShowRoom.addEventListener('change', (e) => {
-        state.showRoom = e.target.checked;
-        els.roomDimensionsPanel.classList.toggle('hidden', !state.showRoom);
-        els.roomDimensionsPanel.classList.toggle('grid', state.showRoom);
-        renderDiagram();
-      });
-
-      els.roomWidth.addEventListener('input', (e) => {
-        state.roomWidth = clamp(parseFloat(e.target.value) || 6, 2, 30);
-        renderDiagram();
-      });
-
-      els.roomDepth.addEventListener('input', (e) => {
-        state.roomDepth = clamp(parseFloat(e.target.value) || 7, 2, 30);
-        renderDiagram();
-      });
-
-      // Add / Clear Speakers
-      document.getElementById('btnAddSpeaker').addEventListener('click', () => {
-        const nextNum = state.speakers.filter(s => !s.isSub).length + 1;
-        state.speakers.push({
-          id: uid(),
-          label: String(nextNum),
-          az: 0,
-          el: 0,
-          dist: state.arrayRadius,
-          isSub: false
+        state.speakers.forEach(s => {
+          if (!s.isSub) s.dist = r;
+          else if (s.dist > r) s.dist = r;
         });
-        state.selectedIndex = state.speakers.length - 1;
         renderAll();
-      });
-
-      document.getElementById('btnClearAll').addEventListener('click', () => {
-        state.speakers = [];
-        state.selectedIndex = null;
-        renderAll();
-        showToast('Cleared all speakers');
-      });
-
-      // Table Row Click & Delete
-      els.speakerTableBody.addEventListener('click', (e) => {
-        const delBtn = e.target.closest('[data-del-index]');
-        if (delBtn) {
-          e.stopPropagation();
-          const idx = parseInt(delBtn.getAttribute('data-del-index'), 10);
-          state.speakers.splice(idx, 1);
-          if (state.selectedIndex === idx) state.selectedIndex = null;
-          else if (state.selectedIndex > idx) state.selectedIndex--;
-          renderAll();
-          return;
-        }
-        const row = e.target.closest('tr[data-row-index]');
-        if (row) {
-          state.selectedIndex = parseInt(row.getAttribute('data-row-index'), 10);
-          renderAll();
-        }
-      });
-
-      // Selected Speaker Inspector Inputs
-      const syncSelectedEdit = () => {
-        if (state.selectedIndex === null || !state.speakers[state.selectedIndex]) return;
-        const s = state.speakers[state.selectedIndex];
-        s.isSub = els.editType.value === 'sub';
-        els.editTypeHeading.textContent = s.isSub ? 'Subwoofer' : 'Speaker';
-        s.label = els.editLabel.value.trim() || (s.isSub ? 'SUB' : String(state.selectedIndex + 1));
-        const az = parseFloat(els.editAz.value);
-        const el = parseFloat(els.editEl.value);
-        const dist = parseFloat(els.editDist.value);
-        if (!isNaN(az)) s.az = normalizeAzimuth(az);
-        if (!isNaN(el)) s.el = clamp(el, -90, 90);
-        if (!isNaN(dist)) s.dist = clamp(dist, 0.5, 15);
-        renderDiagram();
-        renderTable();
-        updateAnalysis();
       };
-
-      els.editType.addEventListener('change', syncSelectedEdit);
-      els.editLabel.addEventListener('input', syncSelectedEdit);
-      els.editAz.addEventListener('input', syncSelectedEdit);
-      els.editEl.addEventListener('input', syncSelectedEdit);
-      els.editDist.addEventListener('input', syncSelectedEdit);
-
-      document.getElementById('btnDeleteSelected').addEventListener('click', () => {
-        if (state.selectedIndex === null) return;
-        state.speakers.splice(state.selectedIndex, 1);
-        state.selectedIndex = null;
-        renderAll();
-      });
-
-      // Export Buttons
-      document.getElementById('btnExportSVG').addEventListener('click', exportSVG);
-      document.getElementById('btnExportPNG').addEventListener('click', exportPNG);
-      document.getElementById('btnCopyCoords').addEventListener('click', copyCoordinatesJSON);
-    }
-
-    // --- Boot ---
-    window.addEventListener('DOMContentLoaded', () => {
-      initPresets();
-      initControls();
-      // Load default Octagon 8.0 preset
-      const defaultPreset = PRESETS.find(p => p.id === 'oct');
-      state.speakers = defaultPreset.build();
-      state.title = defaultPreset.title;
-      els.diagramTitle.value = state.title;
-      renderAll();
-    });
-  </script>
-</body>
-</html>
+// ... existing code ...
