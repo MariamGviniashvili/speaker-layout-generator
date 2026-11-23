@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ambisonics Speaker Setup Diagram Generator</title>
+  <title>Ambisonics Speaker Diagrams</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Inter & JetBrains Mono -->
@@ -63,7 +63,7 @@
           </svg>
         </div>
         <div>
-          <h1 class="text-base sm:text-lg font-semibold tracking-tight text-white leading-tight">Ambisonics Diagram Studio</h1>
+          <h1 class="text-base sm:text-lg font-semibold tracking-tight text-white leading-tight">Ambisonics Speaker Diagrams</h1>
           <p class="text-xs text-slate-400">2D &amp; 3D Spatial Audio Loudspeaker Array Designer</p>
         </div>
       </div>
@@ -201,6 +201,18 @@
           <input id="diagramTitle" type="text" value="8.0 Octagon Horizontal Array" class="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
         </div>
 
+        <!-- Manual Distance from Center (Locked During Drag) -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="arrayRadiusInput" class="text-xs text-slate-400">Speaker Distance (m)</label>
+            <span class="text-[10px] font-mono text-cyan-400">Locked on drag</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="arrayRadiusRange" type="range" min="0.5" max="15" step="0.1" value="2.5" class="flex-1 accent-cyan-500 cursor-pointer">
+            <input id="arrayRadiusInput" type="number" min="0.5" max="15" step="0.1" value="2.5" class="w-16 rounded-lg bg-slate-950 border border-slate-700 px-2 py-1.5 text-xs text-slate-100 font-mono text-right focus:outline-none focus:border-cyan-500">
+          </div>
+        </div>
+
         <!-- View Mode & Theme -->
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -302,7 +314,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
           <div class="flex items-center gap-2 text-xs text-slate-400">
             <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-            <span>Tip: Click a speaker to edit, or <strong class="text-slate-200 font-medium">drag</strong> speakers in the Top-Down view to reposition.</span>
+            <span>Tip: Click a speaker to edit, or <strong class="text-slate-200 font-medium">drag</strong> speakers in the Top-Down view to adjust angle (distance stays locked).</span>
           </div>
           <!-- Elevation Color Legend -->
           <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-300">
@@ -420,6 +432,7 @@
     // --- Application State ---
     const state = {
       title: '8.0 Octagon Horizontal Array',
+      arrayRadius: 2.5,
       viewMode: 'dual', // 'dual' | 'top' | 'side'
       theme: 'dark',    // 'dark' | 'light'
       direction: 'ccw', // 'ccw' | 'cw'
@@ -750,6 +763,8 @@
       editEl: document.getElementById('editEl'),
       editDist: document.getElementById('editDist'),
       diagramTitle: document.getElementById('diagramTitle'),
+      arrayRadiusRange: document.getElementById('arrayRadiusRange'),
+      arrayRadiusInput: document.getElementById('arrayRadiusInput'),
       viewMode: document.getElementById('viewMode'),
       diagramTheme: document.getElementById('diagramTheme'),
       optShowGrid: document.getElementById('optShowGrid'),
@@ -835,19 +850,18 @@
       const svgW = isDual ? 1040 : 620;
       const svgH = 620;
 
-      // Determine max radius for consistent scaling across views
-      const maxSpkDist = state.speakers.reduce((m, s) => Math.max(m, s.dist), 2.5);
-      const maxRoomDim = state.showRoom ? Math.max(state.roomWidth, state.roomDepth) / 2 : 0;
-      const maxR = Math.max(2.5, Math.ceil((Math.max(maxSpkDist, maxRoomDim) + 0.5) * 2) / 2);
+      // Pin speakers to the outer edge of the diagram by matching maxR to the speaker radius
+      const maxSpkDist = state.speakers.reduce((m, s) => Math.max(m, s.dist), state.arrayRadius || 2.5);
+      const maxR = Math.max(0.5, maxSpkDist);
 
-      // Panel geometries
-      const topCx = isDual ? 290 : 310;
-      const topCy = 325;
-      const topPlotR = isDual ? 210 : 225;
+      // Panel geometries with room outside the edge-mounted speakers for labels and compass degrees
+      const topCx = isDual ? 275 : 310;
+      const topCy = 338;
+      const topPlotR = isDual ? 172 : 185;
 
-      const sideCx = isDual ? 775 : 310;
-      const sideCy = 325;
-      const sidePlotR = isDual ? 195 : 225;
+      const sideCx = isDual ? 785 : 310;
+      const sideCy = 338;
+      const sidePlotR = isDual ? 172 : 185;
 
       let svgParts = [];
 
@@ -891,7 +905,7 @@
 
       // Vertical separator in Dual Mode
       if (isDual) {
-        svgParts.push(`<line x1="550" y1="88" x2="550" y2="${svgH - 42}" stroke="${p.border}" stroke-width="1" stroke-dasharray="4 4" />`);
+        svgParts.push(`<line x1="548" y1="88" x2="548" y2="${svgH - 42}" stroke="${p.border}" stroke-width="1" stroke-dasharray="4 4" />`);
       }
 
       // Render Side Elevation View
@@ -914,7 +928,7 @@
           <rect x="378" y="-8" width="8" height="8" rx="1.5" fill="${getElevationColor(0, state.theme, true)}" />
           <text x="391" y="0">Sub / LFE</text>
         </g>
-        <text x="${svgW - 28}" y="${legendY}" text-anchor="end" font-size="10" class="mono-text" fill="${p.textMuted}">Ambisonics Diagram Studio</text>
+        <text x="${svgW - 28}" y="${legendY}" text-anchor="end" font-size="10" class="mono-text" fill="${p.textMuted}">Ambisonics Speaker Diagrams</text>
       `);
 
       svgParts.push(`</svg>`);
@@ -946,13 +960,14 @@
 
       // Polar Grid
       if (state.showGrid) {
-        // Concentric distance rings
-        const ringStep = maxR <= 4 ? 1 : maxR <= 8 ? 2 : 3;
-        for (let r = ringStep; r <= maxR + 0.01; r += ringStep) {
-          const pxR = r * scale;
-          out.push(`<circle cx="${cx}" cy="${cy}" r="${pxR}" fill="none" stroke="${p.grid}" stroke-width="1" />`);
-          out.push(`<text x="${cx + 4}" y="${cy - pxR + 11}" font-size="9.5" class="mono-text" fill="${p.textMuted}">${r.toFixed(0)}m</text>`);
-        }
+        // Concentric distance rings at 1/3, 2/3, and outer edge (maxR)
+        [1 / 3, 2 / 3].forEach(frac => {
+          const r = maxR * frac;
+          const pxR = plotR * frac;
+          out.push(`<circle cx="${cx}" cy="${cy}" r="${pxR.toFixed(1)}" fill="none" stroke="${p.grid}" stroke-width="1" />`);
+          out.push(`<text x="${cx + 4}" y="${(cy - pxR + 11).toFixed(1)}" font-size="9.5" class="mono-text" fill="${p.textMuted}">${r.toFixed(1)}m</text>`);
+        });
+        out.push(`<text x="${cx + 4}" y="${(cy - plotR + 12).toFixed(1)}" font-size="9.5" class="mono-text" fill="${p.textSecondary}">${maxR.toFixed(1)}m</text>`);
 
         // Radial spokes every 30°
         for (let deg = 0; deg < 360; deg += 30) {
@@ -981,10 +996,10 @@
         ];
         markers.forEach(m => {
           const rad = degToRad(m.az);
-          const lx = cx - Math.sin(rad) * (plotR + 18);
-          const ly = cy - Math.cos(rad) * (plotR + 18);
+          const lx = cx - Math.sin(rad) * (plotR + 40);
+          const ly = cy - Math.cos(rad) * (plotR + 40);
           const anchor = Math.abs(m.az) === 0 || Math.abs(m.az) === 180 ? 'middle' : (m.az > 0 ? 'end' : 'start');
-          out.push(`<text x="${lx}" y="${ly + 3.5}" text-anchor="${anchor}" font-size="10.5" class="mono-text" fill="${p.textSecondary}">${m.label}</text>`);
+          out.push(`<text x="${lx.toFixed(1)}" y="${(ly + 3.5).toFixed(1)}" text-anchor="${anchor}" font-size="10.5" class="mono-text" fill="${p.textSecondary}">${m.label}</text>`);
         });
       }
 
@@ -1107,11 +1122,10 @@
 
       // Polar Grid for Elevation
       if (state.showGrid) {
-        const ringStep = maxR <= 4 ? 1 : maxR <= 8 ? 2 : 3;
-        for (let r = ringStep; r <= maxR + 0.01; r += ringStep) {
-          const pxR = r * scale;
-          out.push(`<circle cx="${cx}" cy="${cy}" r="${pxR}" fill="none" stroke="${p.grid}" stroke-width="1" />`);
-        }
+        [1 / 3, 2 / 3].forEach(frac => {
+          const pxR = plotR * frac;
+          out.push(`<circle cx="${cx}" cy="${cy}" r="${pxR.toFixed(1)}" fill="none" stroke="${p.grid}" stroke-width="1" />`);
+        });
         // Elevation spokes every 30°
         for (let deg = 0; deg < 360; deg += 30) {
           const rad = degToRad(deg);
@@ -1130,16 +1144,16 @@
 
       // Elevation Labels
       if (state.showAngles) {
-        out.push(`<text x="${cx}" y="${cy - plotR - 12}" text-anchor="middle" font-size="10.5" class="mono-text" fill="${p.textSecondary}">+90° ZENITH</text>`);
-        out.push(`<text x="${cx}" y="${cy + plotR + 18}" text-anchor="middle" font-size="10.5" class="mono-text" fill="${p.textSecondary}">-90° NADIR</text>`);
-        out.push(`<text x="${cx + plotR + 14}" y="${cy + 3.5}" text-anchor="start" font-size="10.5" class="mono-text" fill="${p.textSecondary}">FRONT</text>`);
-        out.push(`<text x="${cx - plotR - 14}" y="${cy + 3.5}" text-anchor="end" font-size="10.5" class="mono-text" fill="${p.textSecondary}">REAR</text>`);
+        out.push(`<text x="${cx}" y="${cy - plotR - 24}" text-anchor="middle" font-size="10.5" class="mono-text" fill="${p.textSecondary}">+90° ZENITH</text>`);
+        out.push(`<text x="${cx}" y="${cy + plotR + 28}" text-anchor="middle" font-size="10.5" class="mono-text" fill="${p.textSecondary}">-90° NADIR</text>`);
+        out.push(`<text x="${cx + plotR + 16}" y="${cy + 3.5}" text-anchor="start" font-size="10.5" class="mono-text" fill="${p.textSecondary}">FRONT</text>`);
+        out.push(`<text x="${cx - plotR - 16}" y="${cy + 3.5}" text-anchor="end" font-size="10.5" class="mono-text" fill="${p.textSecondary}">REAR</text>`);
         // +45 / -45 subtle markers on front side
-        const x45 = cx + Math.cos(degToRad(45)) * (plotR + 14);
-        const y45Up = cy - Math.sin(degToRad(45)) * (plotR + 14);
-        const y45Dn = cy + Math.sin(degToRad(45)) * (plotR + 14);
-        out.push(`<text x="${x45}" y="${y45Up}" text-anchor="start" font-size="9.5" class="mono-text" fill="${p.textMuted}">+45°</text>`);
-        out.push(`<text x="${x45}" y="${y45Dn + 6}" text-anchor="start" font-size="9.5" class="mono-text" fill="${p.textMuted}">-45°</text>`);
+        const x45 = cx + Math.cos(degToRad(45)) * (plotR + 18);
+        const y45Up = cy - Math.sin(degToRad(45)) * (plotR + 18);
+        const y45Dn = cy + Math.sin(degToRad(45)) * (plotR + 18);
+        out.push(`<text x="${x45.toFixed(1)}" y="${y45Up.toFixed(1)}" text-anchor="start" font-size="9.5" class="mono-text" fill="${p.textMuted}">+45°</text>`);
+        out.push(`<text x="${x45.toFixed(1)}" y="${(y45Dn + 6).toFixed(1)}" text-anchor="start" font-size="9.5" class="mono-text" fill="${p.textMuted}">-45°</text>`);
       }
 
       // Sweet Spot
@@ -1335,24 +1349,16 @@
 
         const topCx = parseFloat(svg.getAttribute('data-top-cx'));
         const topCy = parseFloat(svg.getAttribute('data-top-cy'));
-        const topR = parseFloat(svg.getAttribute('data-top-r'));
-        const maxR = parseFloat(svg.getAttribute('data-max-r'));
-        const scale = topR / maxR;
 
         // Top-down math: dx = -sin(az)*r, dy = -cos(az)*r
+        // Only update azimuth on drag; keep distance from center locked
         const dx = svgPt.x - topCx;
         const dy = svgPt.y - topCy;
         const newAz = normalizeAzimuth(radToDeg(Math.atan2(-dx, -dy)));
-        const horizPx = Math.hypot(dx, dy);
-        const cosEl = Math.max(0.15, Math.cos(degToRad(spk.el)));
-        const newDist = clamp(Math.round((horizPx / scale / cosEl) * 10) / 10, 0.5, 12);
 
         // Snap azimuth to 1° increments (or 5° if holding Shift)
         const snap = e.shiftKey ? 5 : 1;
         spk.az = normalizeAzimuth(Math.round(newAz / snap) * snap);
-        if (Math.abs(spk.el) < 80) {
-          spk.dist = newDist;
-        }
 
         renderDiagram();
         renderSelectedInspector();
@@ -1440,7 +1446,7 @@
         // Structured in a clean AllRAD-friendly JSON format
         const payload = {
           Name: state.title,
-          Description: `Generated by Ambisonics Diagram Studio (${state.direction.toUpperCase()} sequence, 0° Front)`,
+          Description: `Generated by Ambisonics Speaker Diagrams (${state.direction.toUpperCase()} sequence, 0° Front)`,
           LoudspeakerLayout: {
             Loudspeakers: state.speakers.map((s, idx) => ({
               Channel: idx + 1,
@@ -1484,7 +1490,14 @@
 
         // Preserve any existing subwoofers when switching presets
         const existingSubs = state.speakers.filter(s => s.isSub);
-        state.speakers = [...preset.build(), ...existingSubs];
+        const built = preset.build();
+        const presetRadius = built.length ? built[0].dist : state.arrayRadius;
+        state.arrayRadius = presetRadius;
+        els.arrayRadiusRange.value = presetRadius;
+        els.arrayRadiusInput.value = presetRadius;
+        els.ringRadius.value = presetRadius;
+
+        state.speakers = [...built, ...existingSubs];
         reorderAndApplySequence(false);
         state.title = preset.title;
         state.selectedIndex = null;
@@ -1555,6 +1568,9 @@
         const el = clamp(parseFloat(els.ringElevation.value) || 0, -90, 90);
         const off = parseFloat(els.ringOffset.value) || 0;
         const r = clamp(parseFloat(els.ringRadius.value) || 2.5, 0.5, 15);
+        state.arrayRadius = r;
+        els.arrayRadiusRange.value = r;
+        els.arrayRadiusInput.value = r;
         const existingSubs = state.speakers.filter(s => s.isSub);
         state.speakers = [...makeRing(count, el, off, r, 1), ...existingSubs];
         reorderAndApplySequence(false);
@@ -1584,6 +1600,22 @@
         state.title = e.target.value;
         renderDiagram();
       });
+
+      // Manual Array Distance (updates all speakers' distance from center)
+      const updateArrayRadius = (val) => {
+        const parsed = parseFloat(val);
+        if (isNaN(parsed)) return;
+        const r = clamp(Math.round(parsed * 10) / 10, 0.5, 15);
+        state.arrayRadius = r;
+        els.arrayRadiusRange.value = r;
+        els.arrayRadiusInput.value = r;
+        els.ringRadius.value = r;
+        state.speakers.forEach(s => { s.dist = r; });
+        renderAll();
+      };
+
+      els.arrayRadiusRange.addEventListener('input', (e) => updateArrayRadius(e.target.value));
+      els.arrayRadiusInput.addEventListener('input', (e) => updateArrayRadius(e.target.value));
 
       els.viewMode.addEventListener('change', (e) => {
         state.viewMode = e.target.value;
@@ -1642,7 +1674,7 @@
           label: String(nextNum),
           az: 0,
           el: 0,
-          dist: 2.5,
+          dist: state.arrayRadius,
           isSub: false
         });
         state.selectedIndex = state.speakers.length - 1;
